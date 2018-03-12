@@ -1,0 +1,64 @@
+.preventScorll {
+  height: 100%;
+  overflow: hidden;
+}
+.info {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  height: 50px;
+  padding: 0 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+  color: black;
+  background: white;
+  user-select: none;
+  z-index: 10;
+}
+.info-success::before,
+.info-error::before {
+  position: relative;
+  top: 4px;
+  font-family: "iconfont";
+  font-size: 30px;
+  margin-right: 5px;
+}
+.info-msg {
+  font-family: 'PingFang';
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  padding: 5px 5px 0 0;
+  font-size: 20px;
+}
+.info-success::before {
+  content: "\e72e";
+  color: green;
+}
+.info-error::before {
+  content: "\e6f3";
+  color: red;
+}
+.loading {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  transform: translateX(-50%);
+  padding: 3px 1px 0 0;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  color: #999;
+  background: white;
+
+  box-sizing: border-box;
+  user-select: none;
+  z-index: 10;
+}
+.loading span::before {
+  font-size: 25px;
+}

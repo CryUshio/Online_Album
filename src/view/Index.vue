@@ -1,0 +1,376 @@
+<template>
+  <div class="background">
+    <topbar :style="`opacity: ${topbarOpacity}; transition: all .2s linear`"
+             @login="login" @register="register"></topbar>
+    <div class="head">
+      <div class="wrapper-topbar">
+        <div class="logo"></div>
+        <!-- <div class="wrapper-topbar-user">
+          <router-link :to="{ name: 'UserCenter', params: { userId: localStorage.uid }}" v-if="isLogin">{{ uname }}</router-link>
+          <a @click="login" v-if="!isLogin">登录</a>
+          <a @click="register" v-if="!isLogin">注册</a>
+          <a @click="logout" v-if="isLogin">退出</a>
+        </div> -->
+      </div>
+    </div>
+    <div class="content">
+      <div class="content-title">
+        <span>所有图片</span>
+        <div class="wrapper-nav">
+          <a v-for="(item,index) in classification"
+            @click="changeClassification(index)"
+            :key="index"
+            :class="['wrapper-nav-normal', {'wrapper-nav-selected': item.selected}]">{{ item.name }}</a>
+        </div>
+      </div>
+      <div class="waterfall-wrapper">
+          <waterfall :ref="`waterfall_${n.id}`"
+                     @scrollLoad="scrollLoad" :lid='n.id'
+                     v-for="(n,index) in classification"
+                     v-if="n.id == recClassId"
+                     :key="index">
+          </waterfall>
+      </div>
+
+    </div>
+    <div :class="['backTop-wrapper', {'backTop-wrapper-in': showBackTop}]" @click="backTop"><div class="backTop"></div></div>
+    <footer>
+      <div class="wrapper-text"><span>Copyright © 2018 OA.All Rights Reserved.</span></div>
+    </footer>
+
+    <login :prop="dialogType" @closeDialog="closeDialog" v-if="dialog"></login>
+  </div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      topbarOpacity: 0,
+      showBackTop: false,
+
+      classification: [{
+          id: 0,
+          name: '全部',
+          selected: true
+        },{
+          id: 1,
+          name: '风景',
+          selected: false
+        },{
+          id: 2,
+          name: '人物',
+          selected: false
+        },{
+          id: 3,
+          name: '动漫',
+          selected: false
+        },{
+          id: 4,
+          name: '唯美',
+          selected: false
+        }],
+      recClassId: 0,
+
+      dialog: false,
+      dialogType: 0,
+
+      imgsArr: [],
+      count: 0,
+
+      scrollTrigger: true
+    }
+  },
+  mounted() {
+
+  },
+  activated() {
+    this.initPicBox()
+    this.addpic()
+    this.$store.commit('getLocalStorage')
+  },
+  destoryed() {
+    window.removeEventListener('scroll', ()=>{
+      this.scorllLoading()
+    });
+  },
+  methods: {
+    initPicBox() {
+      window.addEventListener('scroll', ()=>{
+        this.scorllLoading()
+      });
+    },
+    addpic(){
+      this.count++;
+      var img = this.imgsArr;
+      this.imgsArr = [];
+      for(let i=1;i<12;i++){
+        this.imgsArr.push({
+          uid: '13255'+this.count,
+          uavartar: '',
+          pid: '22486' + i,
+          purl: 'static/img/' + i + '.jpg',
+          pfrom: '5542',
+          pcreateTime: '2018-03-05'
+        });
+      }
+      switch(this.recClassId){
+        case 0:
+          this.$refs.waterfall_0[0].addPicBox(this.imgsArr);
+          break;
+        case 1:
+          this.$refs.waterfall_1[0].addPicBox(this.imgsArr);
+          break;
+        case 2:
+          this.$refs.waterfall_2[0].addPicBox(this.imgsArr);
+          break;
+        case 3:
+          this.$refs.waterfall_3[0].addPicBox(this.imgsArr);
+          break;
+        case 4:
+          this.$refs.waterfall_4[0].addPicBox(this.imgsArr);
+          break;
+      }
+    },
+    changeClassification(index) {
+      let arr = this.classification;
+      if(arr[index].selected) return;
+
+      for(let i=0;i<arr.length;i++)
+        arr[i].selected = false;
+      arr[index].selected = true;
+
+      this.recClassId = arr[index].id;
+      setTimeout(()=>{
+        this.scrollLoad();
+      },100)
+    },
+    scorllLoading() {
+      // console.log(this.$parent);
+      if(($(window).scrollTop() + $(window).height()*1.5) >= $(document).height()){
+        if(this.scrollTrigger){
+          this.scrollLoad();
+          this.scrollTrigger = false;
+          setTimeout(()=>{
+            this.scrollTrigger = true;
+          },100)
+        }
+      }
+      if($(window).scrollTop() < 320){
+        this.topbarOpacity = 0;
+      }
+      if($(window).scrollTop() >= 320 && $(window).scrollTop() <= 520){
+        this.topbarOpacity = ($(window).scrollTop() - 320)/200;
+      }
+      if($(window).scrollTop() > 520){
+        this.topbarOpacity = 1;
+      }
+
+      if($(window).scrollTop() > $(window).height()*2 ){
+        this.showBackTop = true;
+      }else{
+        this.showBackTop = false;
+      }
+    },
+    scrollLoad() {
+      this.addpic();
+      // let vm = this;
+      // let obj = {
+      //   url: '/getPhotoList',
+      //   opt: '',
+      //   args: {
+      //     'uid': '', //空为首页
+      //     'albumid': '' ,//空为首页
+      //     'label': vm.classification[recClassId].name
+      //   },
+      //   success: function(res) {
+      //     vm.imgsArr = res.data;
+      //   },
+      //   asy: true
+      // }
+    },
+    backTop(time) {
+      $('html').animate({scrollTop: 0}, 500);
+    },
+
+    //function funcs
+    login() {
+      this.dialog = true;
+      this.dialogType = 0;
+      setTimeout(()=>{
+        $('.dialog').addClass('dialog-in');
+        $('.wrapper-dialog').addClass('wrapper-dialog-in');
+      },100);
+      // tools.preventScorll();
+    },
+
+    register() {
+      this.dialog = true;
+      this.dialogType = 1;
+      setTimeout(()=>{
+        $('.dialog').addClass('dialog-in');
+        $('.wrapper-dialog').addClass('wrapper-dialog-in');
+      },100);
+      // tools.preventScorll();
+    },
+
+
+    closeDialog() {
+      this.dialog = false;
+      // tools.preventScorll(false);
+    },
+
+    getPhotoList() {
+
+    }
+
+  }
+}
+</script>
+
+<style scoped>
+.background {
+  height: 100%;
+  width: 100%;
+  background: url(../assets/imgs/bg.jpg) no-repeat center center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+/* head */
+.head {
+  position: relative;
+  height: 600px;
+  width: 100%;
+  min-width: 360px;
+  border: 0;
+  text-align: center;
+  /* background: transparent; */
+  background: url(../assets/imgs/logo.png) center center no-repeat;
+  background-size: 300px;
+
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.wrapper-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 60px;
+  line-height: 60px;
+  width: 100%;
+  background: transparent;
+  color: white;
+}
+.wrapper-topbar-user {
+  position: absolute;
+  display: inline-block;
+  right: 10px;
+  width: auto;
+  margin-right: 10px;
+  font-family: 'PingFang';
+  list-style: none;
+}
+.wrapper-topbar-user a {
+  margin: 0 5px;
+}
+
+
+
+/* body */
+.content {
+  position: relative;
+  width: 100%;
+  min-width: 360px;
+  min-height: calc(100vh);
+  padding: 0 5% 30px 5%;
+  background: #f5f4f5;
+  box-sizing: border-box;
+}
+.content::after {
+  clear: both;
+}
+.content-title {
+  position: relative;
+  height: 90px;
+  padding: 30px 20px;
+  line-height: 30px;
+  font-size: 22px;
+  box-sizing: border-box;
+}
+.wrapper-nav {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  width: auto;
+  height: 30px;
+  margin: 0;
+  font-size: 18px;
+}
+.wrapper-nav-normal {
+  display: inline-block;
+  height: 100%;
+  padding-bottom: 10px;
+  margin-left: 30px;
+  color: #bbbbbb;
+}
+.wrapper-nav-selected {
+  color: black;
+  border-bottom: 2px solid black;
+}
+.waterfall-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 10px;
+}
+
+.backTop-wrapper {
+  position: fixed;
+  bottom: 100px;
+  right: -55px;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border-radius: 25px;
+  background: #ffffff;
+  font-size: 25px;
+  text-align: center;
+  color: #999;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all .3s linear;
+  cursor: pointer;
+}
+.backTop-wrapper:hover {
+  background: rgb(240, 240, 240)
+}
+.backTop-wrapper-in {
+  right: 1%;
+}
+.backTop {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  margin: 5px;
+  border: 1px solid #999;
+  border-radius: 20px;
+  text-align: center;
+  box-sizing: border-box;
+}
+.backTop::before {
+  font-family: "iconfont";
+  content: '\e64a';
+}
+/* footer */
+footer {
+  font-size: 14px;
+  color: rgb(156, 153, 154);
+  background: #f5f4f5;
+}
+footer .wrapper-text {
+  margin: 0 50px;
+  padding: 20px 0;
+  border-top: 1px solid rgb(210, 210, 210);
+  text-align: center;
+}
+</style>
