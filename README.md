@@ -1,6 +1,6 @@
-# online_album
+# Online_Album
 
-> A Vue.js project
+> A online album Vue.js project
 
 ## Build Setup
 
