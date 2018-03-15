@@ -1,42 +1,31 @@
 <template>
-  <div class="background">
-    <topbar :style="`opacity: ${topbarOpacity}; transition: all .2s linear`"
-             @login="login" @register="register"></topbar>
-    <div class="head">
-      <div class="wrapper-topbar">
-        <div class="logo"></div>
-        <!-- <div class="wrapper-topbar-user">
-          <router-link :to="{ name: 'UserCenter', params: { userId: localStorage.uid }}" v-if="isLogin">{{ uname }}</router-link>
-          <a @click="login" v-if="!isLogin">登录</a>
-          <a @click="register" v-if="!isLogin">注册</a>
-          <a @click="logout" v-if="isLogin">退出</a>
-        </div> -->
-      </div>
-    </div>
-    <div class="content">
-      <div class="content-title">
-        <span>所有图片</span>
-        <div class="wrapper-nav">
-          <a v-for="(item,index) in classification"
+  <div>
+    <div class="background">
+      <topbar :class="['topbar',{'topbar-hidden': topbarHide}]" @login="login" @register="register"></topbar>
+      <div class="head"></div>
+      <div :class="['content', {'content-loading': isloading }]">
+        <div class="content-title">
+          <span>所有图片</span>
+          <div class="wrapper-nav">
+            <a v-for="(item,index) in classification"
             @click="changeClassification(index)"
             :key="index"
             :class="['wrapper-nav-normal', {'wrapper-nav-selected': item.selected}]">{{ item.name }}</a>
+          </div>
         </div>
-      </div>
-      <div class="waterfall-wrapper">
-          <waterfall :ref="`waterfall_${n.id}`"
-                     @scrollLoad="scrollLoad" :lid='n.id'
-                     v-for="(n,index) in classification"
-                     v-if="n.id == recClassId"
-                     :key="index">
+        <div class="waterfall-wrapper">
+          <waterfall :ref="`waterfall_${n.id}`" @scrollLoad="scrollLoad" :lid='n.id'
+                      v-for="(n,index) in classification"
+                      v-if="n.id == recClassId" :key="index">
           </waterfall>
-      </div>
+        </div>
 
+      </div>
+      <div :class="['backTop-wrapper', {'backTop-wrapper-in': showBackTop}]" @click="backTop"><div class="backTop"></div></div>
+      <footer>
+        <div class="wrapper-text"><span>Copyright © 2018 OA.All Rights Reserved.</span></div>
+      </footer>
     </div>
-    <div :class="['backTop-wrapper', {'backTop-wrapper-in': showBackTop}]" @click="backTop"><div class="backTop"></div></div>
-    <footer>
-      <div class="wrapper-text"><span>Copyright © 2018 OA.All Rights Reserved.</span></div>
-    </footer>
 
     <login :prop="dialogType" @closeDialog="closeDialog" v-if="dialog"></login>
   </div>
@@ -46,8 +35,10 @@
 export default {
   data () {
     return {
-      topbarOpacity: 0,
+      topbarHide: false,
+      scrollTopOld: 0,
       showBackTop: false,
+      isloading: false,
 
       classification: [{
           id: 0,
@@ -76,24 +67,24 @@ export default {
       dialogType: 0,
 
       imgsArr: [],
-      count: 0,
+      len: 0,
 
       scrollTrigger: true
     }
   },
   mounted() {
-
+    this.initPicBox()
   },
   activated() {
-    this.initPicBox()
-    this.addpic()
-    this.$store.commit('getLocalStorage')
+    this.scrollLoad()
+    this.$store.commit('setUserCenter', { recNavId: 0 })
+    this.$store.commit('setLocalStorage')
   },
-  destoryed() {
-    window.removeEventListener('scroll', ()=>{
-      this.scorllLoading()
-    });
-  },
+  // beforeDestory() {
+  //   window.removeEventListener('scroll', ()=>{
+  //     this.scorllLoading()
+  //   });
+  // },
   methods: {
     initPicBox() {
       window.addEventListener('scroll', ()=>{
@@ -101,93 +92,87 @@ export default {
       });
     },
     addpic(){
-      this.count++;
-      var img = this.imgsArr;
-      this.imgsArr = [];
-      for(let i=1;i<12;i++){
-        this.imgsArr.push({
-          uid: '13255'+this.count,
-          uavartar: '',
-          pid: '22486' + i,
-          purl: 'static/img/' + i + '.jpg',
-          pfrom: '5542',
-          pcreateTime: '2018-03-05'
-        });
-      }
+      this.len += this.imgsArr.length
       switch(this.recClassId){
         case 0:
-          this.$refs.waterfall_0[0].addPicBox(this.imgsArr);
-          break;
+          this.$refs.waterfall_0[0].addPicBox(this.imgsArr)
+          break
         case 1:
-          this.$refs.waterfall_1[0].addPicBox(this.imgsArr);
-          break;
+          this.$refs.waterfall_1[0].addPicBox(this.imgsArr)
+          break
         case 2:
-          this.$refs.waterfall_2[0].addPicBox(this.imgsArr);
-          break;
+          this.$refs.waterfall_2[0].addPicBox(this.imgsArr)
+          break
         case 3:
-          this.$refs.waterfall_3[0].addPicBox(this.imgsArr);
-          break;
+          this.$refs.waterfall_3[0].addPicBox(this.imgsArr)
+          break
         case 4:
-          this.$refs.waterfall_4[0].addPicBox(this.imgsArr);
-          break;
+          this.$refs.waterfall_4[0].addPicBox(this.imgsArr)
+          break
       }
+      this.imgsArr = []
     },
     changeClassification(index) {
-      let arr = this.classification;
-      if(arr[index].selected) return;
+      let arr = this.classification
+      if(arr[index].selected) return
 
       for(let i=0;i<arr.length;i++)
-        arr[i].selected = false;
-      arr[index].selected = true;
+        arr[i].selected = false
+      arr[index].selected = true
 
-      this.recClassId = arr[index].id;
+      this.len = 0
+      this.recClassId = arr[index].id
       setTimeout(()=>{
-        this.scrollLoad();
+        this.scrollLoad()
       },100)
     },
     scorllLoading() {
-      // console.log(this.$parent);
+      // console.log($(window).scrollTop());
       if(($(window).scrollTop() + $(window).height()*1.5) >= $(document).height()){
         if(this.scrollTrigger){
-          this.scrollLoad();
-          this.scrollTrigger = false;
-          setTimeout(()=>{
-            this.scrollTrigger = true;
-          },100)
+          this.scrollLoad()
+          this.scrollTrigger = false
         }
       }
-      if($(window).scrollTop() < 320){
-        this.topbarOpacity = 0;
+
+      if($(window).scrollTop() - this.scrollTopOld > 0){
+        this.topbarHide = true
+      } else {
+        this.topbarHide = false
       }
-      if($(window).scrollTop() >= 320 && $(window).scrollTop() <= 520){
-        this.topbarOpacity = ($(window).scrollTop() - 320)/200;
-      }
-      if($(window).scrollTop() > 520){
-        this.topbarOpacity = 1;
-      }
+      this.scrollTopOld = $(window).scrollTop()
+
 
       if($(window).scrollTop() > $(window).height()*2 ){
-        this.showBackTop = true;
+        this.showBackTop = true
       }else{
-        this.showBackTop = false;
+        this.showBackTop = false
       }
     },
     scrollLoad() {
-      this.addpic();
-      // let vm = this;
-      // let obj = {
-      //   url: '/getPhotoList',
-      //   opt: '',
-      //   args: {
-      //     'uid': '', //空为首页
-      //     'albumid': '' ,//空为首页
-      //     'label': vm.classification[recClassId].name
-      //   },
-      //   success: function(res) {
-      //     vm.imgsArr = res.data;
-      //   },
-      //   asy: true
-      // }
+      console.log(this.len);
+      this.imgsArr = []
+      this.isloading = true
+      let vm = this;
+      let obj = {
+        url: '/picture/pictureList',
+        opt: 'get',
+        args: {
+          'uid': -1, //空为首页
+          'albumid': -1 ,//空为首页
+          //'label': vm.classification[recClassId].name
+          'label': -1,
+          'len': vm.len
+        },
+        success: function(res) {
+          vm.scrollTrigger = true
+          if(res.data.length == 0) return vm.isloading = false
+          vm.imgsArr = res.data;
+          vm.addpic()
+        },
+        asy: true
+      }
+      Ajax(obj)
     },
     backTop(time) {
       $('html').animate({scrollTop: 0}, 500);
@@ -197,27 +182,19 @@ export default {
     login() {
       this.dialog = true;
       this.dialogType = 0;
-      setTimeout(()=>{
-        $('.dialog').addClass('dialog-in');
-        $('.wrapper-dialog').addClass('wrapper-dialog-in');
-      },100);
-      // tools.preventScorll();
+      tools.preventScorll();
     },
 
     register() {
       this.dialog = true;
       this.dialogType = 1;
-      setTimeout(()=>{
-        $('.dialog').addClass('dialog-in');
-        $('.wrapper-dialog').addClass('wrapper-dialog-in');
-      },100);
-      // tools.preventScorll();
+      tools.preventScorll();
     },
 
 
     closeDialog() {
       this.dialog = false;
-      // tools.preventScorll(false);
+      tools.preventScorll(false);
     },
 
     getPhotoList() {
@@ -253,7 +230,14 @@ export default {
   -webkit-user-select: none;
   user-select: none;
 }
-.wrapper-topbar {
+.topbar {
+  top: 0;
+  transition: top .3s ease-out;
+}
+.topbar-hidden {
+  top: -63px !important;
+}
+/* .wrapper-topbar {
   position: absolute;
   top: 0;
   left: 0;
@@ -274,7 +258,7 @@ export default {
 }
 .wrapper-topbar-user a {
   margin: 0 5px;
-}
+} */
 
 
 
@@ -284,12 +268,22 @@ export default {
   width: 100%;
   min-width: 360px;
   min-height: calc(100vh);
-  padding: 0 5% 30px 5%;
+  padding: 0 7% 30px 7%;
   background: #f5f4f5;
   box-sizing: border-box;
 }
-.content::after {
+.content::after,
+.content-loading::after {
+  display: block;
+  font-family: 'PingFang';
+  content: '暂无更多';
+  width: 100%;
+  color: rgb(167, 167, 167);
+  text-align: center;
   clear: both;
+}
+.content-loading::after {
+  content: '加载中...';
 }
 .content-title {
   position: relative;

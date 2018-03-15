@@ -2,18 +2,30 @@
   <div class="user-center-wrapper">
     <topbar @login="login" @register="register"></topbar>
     <div class="head">
-      <div class="head-bg"></div>
+      <div class="head-bg">
+        <div class="user-bar-wrapper">
+          <div class="avartar-wrapper"><img class="avartar" :src="userInfo.avartar"></div>
+          <div class="user-info">
+            <div class="user-info-line"><span class="user-name">{{ userInfo.uname }}</span></div>
+            <div class="user-info-line"><span class="user-sign">{{ userInfo.usignature || '暂无签名'}}</span></div>
+          </div>
+        </div>
+      </div>
       <div class="nav-wrapper">
         <a @click="changeNav(n.id)" v-for="(n,index) in nav" :key="index">
-          <div :class="['nav', {'nav-active': n.id == recNavId}]">
-            <span :class="n.class"></span>
-            <span :class="['text', {'text-active': n.id == recNavId}]">{{ n.name }}</span>
-          </div>
+          <router-link :to="{ name: n.path}" style="color: black">
+            <div :class="['nav', {'nav-active': n.id == userCenter.recNavId}]">
+              <span :class="n.class"></span>
+              <span :class="['text', {'text-active': n.id == userCenter.recNavId}]">{{ n.name }}</span>
+            </div>
+          </router-link>
         </a>
       </div>
     </div>
     <div class="content">
-
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </div>
 
     <footer>
@@ -27,33 +39,37 @@ export default {
   data() {
     return {
       userInfo: this.$store.state.userInfo,
+      userCenter: this.$store.state.userCenter,
 
       nav: [{
           id: 0,
           name: '主页',
           class: 'nav-home',
+          path: 'Home',
           select: true,
         },{
           id: 1,
           name: '相册',
           class: 'nav-pic',
+          path: 'Album',
           select: false
         },{
           id: 2,
           name: '收藏',
           class: 'nav-clt',
+          path: 'Collection',
           select: false
         },{
           id: 3,
           name: '设置',
           class: 'nav-set',
+          path: 'Setting',
           select: false
         }],
-      recNavId: 0,
     }
   },
   activated() {
-    this.$store.commit('getLocalStorage')
+
   },
   methods: {
     changeNav(index) {
@@ -64,8 +80,8 @@ export default {
         arr[i].selected = false
       arr[index].selected = true
 
-      this.recNavId = arr[index].id
-
+      this.$store.commit('setUserCenter', { recNavId: arr[index].id })
+      this.$store.commit('setLocalStorage')
     },
 
 
@@ -95,18 +111,68 @@ export default {
 /* head */
 .head {
   width: 100%;
-  height: 340px;
+  min-width: 960px;
+  height: 300px;
   background: white;
   border-radius: 0 0 3px 3px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 .head-bg {
+  position: relative;
   width: 100%;
-  height: 280px;
+  height: 240px;
   background: url(../assets/imgs/usercenter_bg.png) center center no-repeat;
   background-size: cover;
 }
+.user-bar-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 86px;
+  width: 100%;
+  padding: 0 20px 16px 20px;
+  background: url(../assets/imgs/user_mask.png);
+  box-sizing: border-box;
+}
+.avartar-wrapper {
+  float: left;
+  width: 70px;
+  height: 70px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-radius: 35px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.avartar {
+  width: 100%;
+}
+.user-info {
+  float: left;
+  height: 54px;
+  width: 65%;
+  margin: 8px 0 8px 20px;
+  box-sizing: border-box;
+}
+.user-info-line {
+  height: 27px;
+  line-height: 27px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.user-name {
+  font-family: 'PingFang BD';
+  color: white;
+  font-size: 20px;
+  vertical-align: top;
+}
+.user-sign {
+  font-family: 'PingFang';
+  color: #d6d6d6;
+  font-size: 13px;
+  vertical-align: baseline;
+}
+
 .nav-wrapper {
   width: 100%;
   height: 60px;
@@ -164,11 +230,13 @@ export default {
 /* body */
 .content {
   width: 100%;
-  min-height: 600px;
+  min-width: 960px;
+  min-height: 540px;
   margin: 10px 0;
   background: white;
   border-radius: 3px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 /* footer */

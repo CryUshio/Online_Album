@@ -10,8 +10,16 @@ const store = new Vuex.Store({
       uid: '',
       uname: '',
       avartar: '',
-      uemail: ''
+      uemail: '',
+      usignature: '',
+      ugender: 0
     },
+    userCenter: {
+      recNavId: 0
+    },
+    photoList: {
+      album: ''
+    }
   },
   mutations: {
     setUserInfo(state, obj) {
@@ -19,23 +27,30 @@ const store = new Vuex.Store({
         state.userInfo[key] = obj[key]
       }
     },
+    setUserCenter(state, obj) {
+      for(let key in obj){
+        state.userCenter[key] = obj[key]
+      }
+    },
+    setPhotoList(state, obj) {
+      for(let key in obj){
+        state.photoList[key] = obj[key]
+      }
+    },
 
     setLocalStorage(state) {
       localStorage.state = JSON.stringify(state);
     },
     getLocalStorage(state) {
-      if(localStorage.state == 'null') return
+      if(localStorage.state == 'null' || !localStorage.state) return
       let store = JSON.parse(localStorage.state)
 
-      // for(let key in store['userInfo']){
-      //   state.userInfo[key] = store['userInfo'][key]
-      // }
       var s = state
       setState(s, store)
 
       function setState(s, store){
         for(let key in store) {
-          if(typeof store[key] == 'object'){
+          if(typeof store[key] == 'object' && typeof s[key] == 'object'){
             setState(s[key], store[key])
           } else {
             s[key] = store[key]

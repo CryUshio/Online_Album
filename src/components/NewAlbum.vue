@@ -1,0 +1,270 @@
+<template lang="html">
+  <div>
+    <div :class="['new-album-wrapper', {'new-album-wrapper-in': transIn}]">
+      <div class="title"><span>{{ isNew ? '新建相册' : '修改相册'}}</span><i class="iconfont icon-close" @click="closeDialog"></i></div>
+      <div class="content">
+        <div class="input-wrapper">
+          <span class="name">相册名称</span>
+          <input type="text" v-model="aname" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"/>
+          <span class="gray">{{ anamelen }}/30</span>
+        </div>
+        <div class="input-wrapper">
+          <span class="name">相册描述</span>
+          <textarea v-model="adescribe" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"></textarea>
+          <span class="gray">{{ adescribelen }}/2000</span>
+        </div>
+        <div class="input-wrapper">
+          <span class="name">标签</span>
+          <div class="label-wrapper">
+            <!-- <div class="select-label" v-for="">
+
+            </div> -->
+            <div class="search-label">
+              <input type="text" v-model="search" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"/>
+              <div class="seach-result"></div>
+            </div>
+          </div>
+          <span class="gray">{{ labellen }}/5</span>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="submit" @click="newAlbum">新建</button>
+        <button class="cancel" @click="closeDialog">取消</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: ['isNew'],
+  data() {
+    return {
+      transIn: false,
+      aname: '',
+      anamelen: 0,
+      adescribe: '',
+      adescribelen: 0,
+      label: '2',
+      labellen: 0,
+
+      search: ''
+    }
+  },
+  mounted() {
+    setTimeout(()=>{
+      this.transIn = true
+      if(!this.isNew) {
+        let album = this.$store.state.photoList.album
+        console.log(this.$store.state.photoList.album);
+        this.aname = album.aname
+        this.adescribe = album.adescribe
+      }
+    },100)
+  },
+  watch: {
+    aname(val, old){
+      this.anamelen = tools.strlen(val)
+      if(tools.strlen(val)>30)
+        this.aname = old
+    },
+    adescribe(val, old){
+      this.adescribelen = tools.strlen(val)
+      if(tools.strlen(val)>2000)
+        this.adescribe = old
+    }
+  },
+  methods: {
+    newAlbum(){
+      if(!this.aname) return tools.info('请将名称填写完整', 'error')
+      let vm = this
+      let obj = {
+        url: '/album/createAlbum',
+        args: {
+          aname: vm.aname,
+          adescribe: vm.adescribe,
+          tags: vm.label
+        },
+        success: function(res) {
+          tools.info('创建成功', 'success')
+          vm.closeDialog()
+          vm.$emit('suc')
+        },
+        error: function(res) {
+          tools.info('创建失败', 'error')
+        },
+        asy: true
+      }
+      Ajax(obj)
+    },
+    closeDialog() {
+      this.$emit('closeDialog')
+    },
+  }
+}
+</script>
+
+<style scoped>
+::-webkit-scrollbar {
+   width: 8px;
+   height: 8px
+}
+::-webkit-scrollbar-track-piece {
+   background-color: transparent
+}
+::-webkit-scrollbar-thumb {
+   border-radius: 9px;
+   background-color: rgba(195, 195, 195, 0.3)
+}
+::-webkit-scrollbar-thumb:hover {
+   background-color: rgba(126, 126, 126, 0.6)
+}
+
+.new-album-wrapper {
+  position: fixed;
+  top:45%;
+  left:50%;
+  min-width: 380px;
+  min-height: 260px;
+  width: 360px;
+  /* height: 320px; */
+  transform:translateX(-50%) translateY(-50%);
+
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: all .3s ease;
+  opacity: 0;
+  z-index: 6;
+}
+.new-album-wrapper-in {
+  top:50%;
+  opacity: 1;
+}
+
+/* title */
+.title {
+  position: relative;
+  height: 40px;
+  width: 100%;
+  line-height: 40px;
+  padding: 0 15px;
+  border-radius: 3px 3px 0 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  color: #4C4C4C;
+  box-sizing: border-box;
+}
+.title i {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'iconfont';
+  content: '\e625';
+  font-size: 14px;
+  color: #a3a2a2;
+  cursor: pointer;
+}
+
+/* content */
+.content {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 40px);
+  padding: 20px 40px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+.input-wrapper {
+  display: grid;
+  grid-template-columns: 22% 56% 22%;
+  width: 100%;
+  /* height: 30px; */
+  min-height: 30px;
+  line-height: 30px;
+  margin-bottom: 10px;
+  font-size: 14px;
+
+}
+.input-wrapper .name {
+  text-align: right;
+  padding-right: 10px;
+}
+.input-wrapper .gray {
+  color: #a8a8a8;
+  padding-left: 10px;
+}
+.input-wrapper input {
+  padding: 0 5px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+.input-wrapper textarea {
+  height: 60px;
+  line-height: 20px;
+  padding: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  outline: none;
+  resize: none;
+}
+.label-wrapper {
+  min-height: 30px;
+  line-height: 30px;
+  height: 30px;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  padding: 0 5px;
+  box-sizing: border-box;
+}
+.label-wrapper input {
+  position: relative;
+  top: -1px;
+  min-width: 33%;
+  width: 100%;
+  height: 28px;
+  border: none;
+  padding: 0;
+  background: transparent
+}
+
+/* footer */
+.footer {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 5px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  text-align: right;
+  box-sizing: border-box;
+}
+.submit,
+.cancel {
+  height: 25px;
+  /* width: 40px; */
+  border-radius: 2px;
+  font-size: 13px;
+  text-align: center;
+  padding: 0 10px;
+}
+.submit {
+  background: #3a8ee2;
+  color: white;
+}
+.submit:hover {
+  background: #3583d0;
+}
+.cancel {
+  background: rgb(255,255,255);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.cancel:hover {
+  background: rgb(245,245,245);
+}
+</style>

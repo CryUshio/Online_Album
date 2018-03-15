@@ -1,6 +1,23 @@
+@font-face {
+  font-family: 'PingFang';
+  src: url(./assets/fonts/PingFang-Regular.ttf);
+}
+@font-face {
+  font-family: 'PingFang MD';
+  src: url(./assets/fonts/PingFang-Medium.ttf);
+}
+@font-face {
+  font-family: 'MILT RG';
+  src: url(./assets/fonts/MILT_RG.ttf);
+}
+@font-face {
+  font-family: 'MILT BD';
+  src: url(./assets/fonts/MILT_BD.ttf);
+}
+
 .preventScorll {
-  height: 100%;
   overflow: hidden;
+  margin-right: 17px;
 }
 .info {
   position: fixed;
@@ -17,7 +34,8 @@
   z-index: 10;
 }
 .info-success::before,
-.info-error::before {
+.info-error::before,
+.info-default::before {
   position: relative;
   top: 4px;
   font-family: "iconfont";
@@ -25,16 +43,22 @@
   margin-right: 5px;
 }
 .info-msg {
-  font-family: 'PingFang';
+  position: relative;
+  top: -1px;
+  font-family: 'PingFang MD';
   display: inline-block;
   height: 40px;
   line-height: 40px;
   padding: 5px 5px 0 0;
-  font-size: 20px;
+  font-size: 16px;
 }
 .info-success::before {
   content: "\e72e";
   color: green;
+}
+.info-default::before {
+  content: "\e620";
+  color: #3381d0;
 }
 .info-error::before {
   content: "\e6f3";
@@ -48,7 +72,7 @@
   height: 50px;
   line-height: 50px;
   transform: translateX(-50%);
-  padding: 3px 1px 0 0;
+  /* padding: 1px 0 0 0; */
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   text-align: center;
@@ -59,6 +83,11 @@
   user-select: none;
   z-index: 10;
 }
-.loading span::before {
-  font-size: 25px;
+.loading i::before {
+  position: relative;
+  /* top: 1px;
+  left: -1px; */
+  font-size: 40px;
+  text-align: center;
+  vertical-align: middle;
 }

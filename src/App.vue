@@ -22,13 +22,29 @@ export default {
   font-family: 'PingFang';
   src: url(./assets/fonts/PingFang-Regular.ttf);
 }
+@font-face {
+  font-family: 'PingFang MD';
+  src: url(./assets/fonts/PingFang-Medium.ttf);
+}
+@font-face {
+  font-family: 'PingFang BD';
+  src: url(./assets/fonts/PingFang-Bold.ttf);
+}
+@font-face {
+  font-family: 'MILT RG';
+  src: url(./assets/fonts/MILT_RG.ttf);
+}
+@font-face {
+  font-family: 'MILT BD';
+  src: url(./assets/fonts/MILT_BD.ttf);
+}
 #app {
-  font-family: 'Microsoft YaHei', 'PingFang', 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'PingFang MD', 'PingFang','MILT_RG','Microsoft YaHei', 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 html,body {
-  min-width: 360px;
+  min-width: 540px;
   margin: 0;
   padding: 0;
   background: #f5f4f5;
@@ -36,6 +52,17 @@ html,body {
 a {
   text-decoration: none;
   cursor: pointer;
+}
+button {
+  font-family: 'PingFang MD', 'PingFang','MILT_RG','Microsoft YaHei', 'Avenir', Helvetica, Arial, sans-serif;
+  border: none;
+  outline: none;
+  /* border-radius: 3px; */
+  cursor: pointer;
+}
+input, textarea{
+  font-family: 'PingFang MD', 'PingFang','MILT_RG','Microsoft YaHei', 'Avenir', Helvetica, Arial, sans-serif;
+  outline: none;
 }
 ::-webkit-scrollbar {
    /* display: none; */

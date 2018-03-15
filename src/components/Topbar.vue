@@ -1,13 +1,16 @@
 <template lang="html">
-  <div class="wrapper-topbar">
-    <router-link :to="{ name: 'Index'}"><div class="logo"></div></router-link>
-    <div class="avartar-wrapper"><img class="user-avartar" :src="userInfo.avartar"></div>
-    <div class="wrapper-topbar-user">
-      <router-link :to="{ name: 'UserCenter'}"
-                   v-if="userInfo.isLogin">{{ userInfo.uname }}，欢迎你！</router-link>
-      <a @click="login" v-if="!userInfo.isLogin">登录</a>
-      <a @click="register" v-if="!userInfo.isLogin">注册</a>
-      <a @click="logout" v-if="userInfo.isLogin">退出</a>
+  <div id="topbar">
+    <div class="wrapper-topbar">
+      <router-link :to="{ name: 'Index'}"><div class="logo"></div></router-link>
+      <div class="avartar-wrapper" v-if="userInfo.isLogin"><img class="user-avartar" :src="userInfo.avartar"></div>
+      <div class="wrapper-topbar-user">
+        <a @click="goHome" v-if="userInfo.isLogin">
+          <router-link :to="{ name: 'Home'}" style="color: black">{{ userInfo.uname }}，欢迎你！</router-link>
+        </a>
+        <a @click="login" v-if="!userInfo.isLogin">登录</a>
+        <a @click="register" v-if="!userInfo.isLogin">注册</a>
+        <a @click="logout" v-if="userInfo.isLogin">退出</a>
+      </div>
     </div>
   </div>
 </template>
@@ -20,9 +23,18 @@ export default {
     }
   },
   mounted(){
-
+    this.$store.commit('getLocalStorage')
+  },
+  activated() {
+    if(!this.userInfo.uid){
+      this.$router.push({name: 'Index'})
+    }
   },
   methods: {
+    goHome() {
+      this.$store.commit('setUserCenter', { recNavId: 0 })
+      this.$store.commit('setLocalStorage')
+    },
     login() {
       this.$emit('login')
     },
@@ -30,14 +42,18 @@ export default {
       this.$emit('register')
     },
     logout() {
+      tools.loading()
       let vm = this;
       let obj = {
-        url: '/logout',
+        url: '/user/logout',
         args: {},
         success: function() {
           localStorage.state = null
-          vm.$router.push({name: 'Index'})
-          window.location.reload()
+          tools.info('退出成功，即将跳转到首页', 'success')
+          setTimeout(()=>{
+            window.location.reload()
+          },1000)
+
         },
         asy: true
       }
@@ -48,11 +64,20 @@ export default {
 </script>
 
 <style scoped>
-.wrapper-topbar {
+#topbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  min-width: 1110px;
+  height: 60px;
+  z-index: 2;
+  box-sizing: border-box;
+}
+.wrapper-topbar {
+  position: relative;
+  width: 100%;
+  min-width: 1110px;
   height: 60px;
   line-height: 60px;
   padding: 0 7%;
@@ -61,7 +86,6 @@ export default {
   text-align: right;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  z-index: 2;
 }
 .wrapper-topbar-user {
   float: right;
@@ -70,7 +94,7 @@ export default {
   line-height: 60px;
   width: auto;
   margin-right: 10px;
-  font-family: 'PingFang';
+  font-family: 'PingFang MD';
 }
 .avartar-wrapper {
   display: inline-block;
@@ -78,7 +102,7 @@ export default {
   height: 40px;
   width: 40px;
   margin: 10px;
-  margin-right: 20px;
+  margin-right: 5px;
   border-radius: 30px;
   overflow: hidden;
   box-sizing: border-box;
@@ -89,7 +113,7 @@ export default {
 .wrapper-topbar-user a {
   /* color: #999; */
   max-width: 160px;
-  margin: 0 5px;
+  margin: 0 10px;
   white-space: normal;
   text-overflow: ellipsis;
   transition: color .3s ease-in-out;

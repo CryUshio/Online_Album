@@ -1,7 +1,8 @@
 <template lang="html">
-  <div style="overflow: scroll">
-    <div class="wrapper-dialog" @click="closeDialog"></div>
-    <div class="dialog">
+  <div>
+    <shade @closeShade="closeDialog" v-if="transIn"></shade>
+    <!-- <div :class="['dialog-mask', {'dialog-mask-in': transIn}]" @click="closeDialog"></div> -->
+    <div :class="['dialog', {'dialog-in': transIn}]">
       <div class="wrapper-content">
         <div class="content-head">
           <div class="close-wrapper" @click="closeDialog"><i class="iconfont icon-close"></i></div>
@@ -13,22 +14,29 @@
         <div class="content-body">
           <div class="model-wrapper">
             <div id="uname" class="input-hint">{{ info[recent].unameHint }}</div>
-            <input class="input-normal" type="text" v-model="uname" @focus="onInput('name')"/>
+            <input class="input-normal" type="text" v-model="uname"
+                   @focus="onInput('name')" @keydown="keydown('name')"/>
           </div>
           <div class="model-wrapper">
             <div id="upsd" class="input-hint">{{ info[recent].upsdHint }}</div>
-            <input class="input-normal" type="password" v-model="upsd" @focus="onInput('psd')"/>
+            <input class="input-normal" type="password" v-model="upsd"
+                   @focus="onInput('psd')" @keyup.enter="recent == 0 && submit()"/>
           </div>
           <div :class="['model-wrapper', {'model-wrapper-hidden': recent == 0}]">
             <div id="urpsd" class="input-hint">确认密码</div>
-            <input class="input-normal" type="password" v-model="urpsd" @focus="onInput('rpsd')"/>
+            <input class="input-normal" type="password" v-model="urpsd"
+                   @focus="onInput('rpsd')"/>
           </div>
           <div :class="['model-wrapper', {'model-wrapper-hidden': recent == 0}]">
             <div id="uemail" class="input-hint">邮箱</div>
-            <input class="input-normal" type="text" v-model="uemail" @focus="onInput('email')"/>
+            <input class="input-normal" type="text" v-model="uemail"
+                   @focus="onInput('email')" @keydown="keydown('email')"/>
           </div>
-          <div class="model-wrapper find-psd-warpper"><a :class="['find-psd', {'find-psd-hidden': recent == 1}]" @click="">忘记密码？</a></div>
-          <div class="model-wrapper button-wrapper"><button class="button-type" @click="submit">{{ info[recent].submit }}</button></div>
+          <div class="model-wrapper find-psd-warpper">
+            <a :class="['find-psd', {'find-psd-hidden': recent == 1}]" @click="">忘记密码？</a>
+          </div>
+          <div class="model-wrapper button-wrapper"><button class="button-type" :disabled="inLogin"
+               @click="submit">{{ info[recent].submit }}</button></div>
         </div>
         <div class="content-footer">
             <span>{{ info[recent].tip }}</span>
@@ -45,6 +53,7 @@ export default {
   data() {
     return {
       userInfo: this.$store.state.userInfo,
+      transIn: false,
 
       recent: this.prop, //0-login, 1-register
       info: [{
@@ -68,11 +77,15 @@ export default {
       urpsd: '',
       //ugender: 0,
       //usign: '',
-      uemail: ''
+      uemail: '',
+
+      inLogin: false
     }
   },
   mounted() {
-
+    setTimeout(()=>{
+      this.transIn = true
+    },100)
   },
   watch: {
     uname(val) {
@@ -145,6 +158,15 @@ export default {
           email.attr('class','input-hint')
           email.text('邮箱')
         }
+      }
+    },
+    keydown(type) {
+      if(event.keyCode == 229){
+        if(type == 'name' && !this.uname){
+          $('#uname').text('')
+        }
+        if(type == 'email' && !this.uemail)
+          $('#uemail').text('')
       }
     },
     onsubmit(type) {
@@ -230,27 +252,33 @@ export default {
       }
 
       tools.loading();
+      this.inLogin = true
+      setTimeout(()=>{this.inLogin = false},10000)
       let vm = this
       let obj = {
-        url: '/login',
+        url: '/user/login',
         args: {
           uname: vm.uname,
           upsd: vm.upsd
         },
         success: function(res) {
+
           vm.closeDialog()
           tools.info('登录成功','success')
           vm.$store.commit('setUserInfo',{
             isLogin: true,
             uid: res.data.uid,
             uname: res.data.uname,
-            avartar: res.data.avartar,
-            uemail: res.data.uemail
+            avartar: res.data.avartar || 'static/img/default_avartar.gif',
+            uemail: res.data.uemail,
+            usignature: res.data.usignature,
+            ugender: res.data.ugender
           })
           vm.$store.commit('setLocalStorage')
-          
+
         },
         error: function(res) {
+          vm.inLogin = false
           tools.info('用户名或密码错误','error')
           $('#uname').next().addClass('input-error-line')
           $('#upsd').next().addClass('input-error-line')
@@ -264,9 +292,11 @@ export default {
       if(this.upsd != this.urpsd) return
 
       tools.loading();
+      this.inLogin = true
+      setTimeout(()=>{this.inLogin = false},10000)
       let vm = this
       let obj = {
-        url: '/register',
+        url: '/user/register',
         args: {
           uname: vm.uname,
           upsd: vm.upsd,
@@ -279,6 +309,7 @@ export default {
           vm.closeDialog()
         },
         error: function(res) {
+          vm.inLogin = false
           tools.info('注册失败','error')
         },
         asy: true
@@ -291,19 +322,10 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.wrapper-dialog {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0);
-  transition: all .3s ease;
-  z-index: 3;
+::-webkit-scrollbar {
+  display: none
 }
-.wrapper-dialog-in {
-  background: rgba(0, 0, 0, 0.5);
-}
+
 .dialog {
   position: fixed;
   top:45%;
@@ -312,6 +334,7 @@ export default {
   max-height: calc(100vh - 24px * 2);
   background: #fff;
   border-radius: 3px;
+  overflow-y: auto;
   transform:translateX(-50%) translateY(-50%);
   transition: all .3s ease;
   opacity: 0;

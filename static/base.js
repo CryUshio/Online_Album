@@ -1,6 +1,6 @@
 // var baseUrl = document.location.origin + '/user';
 // var baseUrl = 'http://192.168.31.10:6705/user';
-var baseUrl = 'http://localhost:6705/user';
+var baseUrl = 'http://localhost:6705';
 
 
 function Ajax(obj) {
@@ -18,7 +18,7 @@ function Ajax(obj) {
     if (typeof url != 'string' || Object.prototype.toString.call(args).toLowerCase() != '[object object]' || typeof sucFn != 'function') {
         return console.log('参数错误2');
     }
-    if(typeof opt != 'string' || (opt != 'post' && opt != 'get' && opt != 'options'))
+    if(typeof opt != 'string' || (opt.toLowerCase() != 'post' && opt != 'get' && opt != 'options'))
       return console.log('method error');
 
 
@@ -36,14 +36,37 @@ function Ajax(obj) {
     var json2FormData = function(args){
       let formData = new FormData();
       for(let key in args){
-        formData.append(key, args[key]);
+        if(args[key].__proto__.toString() === '[object File]'){
+          formData.append(key, args[key], new Date().getTime() + '.' + args[key].type.replace(/(image\/)/g,''));
+        } else {
+          formData.append(key, args[key]);
+        }
+
       }
       return formData;
+    }
+
+    var json2Url = function(args){
+      let get_url = baseUrl + url + '?';
+      let count
+      for(let key in args){
+        get_url = get_url  + key + '=' + args[key] + '&';
+      }
+      get_url.length--;
+      console.log(get_url);
+      return get_url;
     }
 
     var fun = function(res) {
       console.log(res);
       switch (res.code) {
+        case -1:
+          tools.info('用户登录已过期','error');
+          localStorage.state = null;
+          setTimeout(()=>{
+            window.location.href = document.location.origin + '/';
+          },1000);
+          break;
         case 0:
           sucFn(res);
           break;
@@ -61,10 +84,16 @@ function Ajax(obj) {
     // 原生XMLHttpRequest
     let xhr = new XMLHttpRequest();
     let async = asy === undefined ? true : (asy === false ? false : true);
-    xhr.open(opt, baseUrl + url, async);
+
+    if(opt.toLowerCase() == 'get'){
+      xhr.open(opt, json2Url(args), async);
+    } else {
+      xhr.open(opt, baseUrl + url, async);
+    }
     xhr.timeout = 10000;
     xhr.ontimeout = function() {
       tools.info('网络不给力', 'error');
+      tools.loading(false);
     };
     xhr.onload = function() {
       if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
@@ -74,17 +103,33 @@ function Ajax(obj) {
       } else {
         tools.loading(false);
         if(xhr.status == 404){
+          tools.info('错误码：' + xhr.status, 'error');
           // window.location.href = document.location.origin + '/';
         }
         else {
+          // window.location.href = document.location.origin + '/';
           tools.info('错误码：' + xhr.status, 'error');
         }
       }
     }
 
     // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+    xhr.withCredentials = true;
+    try {
+      if(opt.toLowerCase() == 'get'){
+        xhr.send();
+      } else {
+        xhr.send(json2FormData(args));
+      }
+    } catch (e) {
+      console.log('xhr err');
+      tools.loading(false);
+      console.error(e.message);
+    } finally {
+      setTimeout(()=>{
 
-    xhr.send(json2FormData(args));
+      },10000)
+    }
 
 }
 
@@ -93,16 +138,20 @@ function Ajax(obj) {
 var tools = {
   preventScorll: function(type) {
     type = typeof(type) == 'undefined' && true;
-    if(type) {
-      $('html,body').addClass('preventScorll');
-    } else {
-      $('html,body').removeClass('preventScorll');
-    }
+    setTimeout(()=>{
+      if(type) {
+        $("html").addClass("preventScorll")
+        $('#topbar').css('padding-right','17px')
+      } else {
+        $("html").removeClass("preventScorll")
+        $('#topbar').css('padding-right','0px')
+      }
+    },10)
   },
   loading: function(type) {
     type = typeof(type) == 'undefined' ? true : false;
     if(type) {
-      let $div = $("<div class='loading'><span class='fa fa-spinner fa-spin-2x'></span></div>");
+      let $div = $("<div class='loading'><i class='iconfont icon-loading fa-spin-2x'></i></div>");
       $("body").append($div);
     } else {
       $(".loading").remove();
@@ -111,7 +160,7 @@ var tools = {
   },
   info: function(msg, type) {
     msg = msg || 'null';
-    type = type || 'error';
+    type = type || 'default';
     let $div = $("<div class='info info-" + type + "'><div class='info-msg'>"+ msg +"</div></div>");
     $("body").append($div);
     $div.fadeIn(500, function() {
@@ -122,6 +171,10 @@ var tools = {
             });
         }, 1000);
     });
+  },
+  strlen: function(str) {
+    if(!str) return 0
+    return str.replace(/[^\x00-\xff]/g,"aa").length;
   }
 };
 
@@ -129,7 +182,8 @@ var tools = {
 var reg = {
   email: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
   uname: /^[\u4E00-\u9FA5A-Za-z0-9_]+$/,
-  upsd: /^[a-zA-Z]\w{5,17}$/
+  upsd: /^[a-zA-Z._]\w{5,17}$/,
+  specie: /[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/,
 };
 var validate = {
   ckEmail: function(email) {
