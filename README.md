@@ -2,6 +2,10 @@
 
 > A online album Vue.js project
 
+## Preview
+![image](https://github.com/chym123/Online_Album/blob/master/preview.png)
+
+
 ## Build Setup
 
 ``` bash
