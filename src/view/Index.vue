@@ -14,7 +14,7 @@
           </div>
         </div>
         <div class="waterfall-wrapper">
-          <waterfall :ref="`waterfall_${n.id}`" @scrollLoad="scrollLoad" :lid='n.id'
+          <waterfall :ref="`waterfall_${index}`" @scrollLoad="scrollLoad" :lid='n.id'
                       v-for="(n,index) in classification"
                       v-if="n.id == recClassId" :key="index">
           </waterfall>
@@ -41,27 +41,27 @@ export default {
       isloading: false,
 
       classification: [{
-          id: 0,
+          id: -1,
           name: '全部',
           selected: true
         },{
-          id: 1,
-          name: '风景',
-          selected: false
-        },{
           id: 2,
-          name: '人物',
-          selected: false
-        },{
-          id: 3,
-          name: '动漫',
+          name: '自然',
           selected: false
         },{
           id: 4,
-          name: '唯美',
+          name: '人物',
+          selected: false
+        },{
+          id: 8,
+          name: '动漫',
+          selected: false
+        },{
+          id: 9,
+          name: '美食',
           selected: false
         }],
-      recClassId: 0,
+      recClassId: -1,
 
       dialog: false,
       dialogType: 0,
@@ -94,19 +94,19 @@ export default {
     addpic(){
       this.len += this.imgsArr.length
       switch(this.recClassId){
-        case 0:
+        case -1:
           this.$refs.waterfall_0[0].addPicBox(this.imgsArr)
           break
-        case 1:
+        case 2:
           this.$refs.waterfall_1[0].addPicBox(this.imgsArr)
           break
-        case 2:
+        case 4:
           this.$refs.waterfall_2[0].addPicBox(this.imgsArr)
           break
-        case 3:
+        case 8:
           this.$refs.waterfall_3[0].addPicBox(this.imgsArr)
           break
-        case 4:
+        case 9:
           this.$refs.waterfall_4[0].addPicBox(this.imgsArr)
           break
       }
@@ -150,7 +150,7 @@ export default {
       }
     },
     scrollLoad() {
-      console.log(this.len);
+      console.log(this.recClassId);
       this.imgsArr = []
       this.isloading = true
       let vm = this;
@@ -161,7 +161,7 @@ export default {
           'uid': -1, //空为首页
           'albumid': -1 ,//空为首页
           //'label': vm.classification[recClassId].name
-          'label': -1,
+          'label': vm.recClassId,
           'len': vm.len
         },
         success: function(res) {
@@ -209,6 +209,7 @@ export default {
 .background {
   height: 100%;
   width: 100%;
+  min-width: 1100px;
   background: url(../assets/imgs/bg.jpg) no-repeat center center;
   background-size: cover;
   background-attachment: fixed;
@@ -266,7 +267,7 @@ export default {
 .content {
   position: relative;
   width: 100%;
-  min-width: 360px;
+  min-width: 1100px;
   min-height: calc(100vh);
   padding: 0 7% 30px 7%;
   background: #f5f4f5;

@@ -310,7 +310,7 @@ export default {
         },
         error: function(res) {
           vm.inLogin = false
-          tools.info('注册失败','error')
+          tools.info(res.msg,'error')
         },
         asy: true
       }

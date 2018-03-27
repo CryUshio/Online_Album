@@ -60,8 +60,13 @@ export default {
     }
   },
   activated() {
+    this.multiMa = false
+    this.selectList = {}
     this.getAlbumInfo()
     this.getPhotoList()
+  },
+  beforeDestory() {
+
   },
   methods: {
     getAlbumInfo() {
@@ -100,6 +105,7 @@ export default {
     newImg(i, url) {
       let img = new Image()
       img.src = 'http://localhost:6705' + url
+      // img.src = url
       img.onerror = () => {
         this.photoList[i].purl = 'static/img/error.jpg'
       }
@@ -161,6 +167,9 @@ export default {
         this.newAlbumDialog = false
     },
     backList() {
+      this.multiMa = false
+      this.selectList = {}
+      this.photoList = []
       this.$router.push({name: 'Album'})
     }
   }
@@ -275,7 +284,7 @@ export default {
 }
 .detail-num {
   display: inline-block;
-  max-width: 180px;
+  max-width: 240px;
   position: relative;
   top: 4px;
   padding-left: 2px;

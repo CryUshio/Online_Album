@@ -9,16 +9,19 @@
         </div>
         <div class="album-list-wrapper">
           <div class="album-list">
-            <div :class="['item', {'item-selected': i.aid == selected.aid }]"
+            <div v-for="(i,index) in albumList" :class="['item', {'item-selected': i.aid == selected.aid }]"
                  @click="select(index)" :key="index" :title="i.aname"
-                 v-for="(i,index) in albumList" >{{ i.aname }}
-            <div class="num">{{ i.picNum }}</div>
+                 >{{ i.aname }}
+                 <div class="num">{{ i.picNum }}</div>
             </div>
           </div>
         </div>
         <div class="upload-area-title">
-          <span>上传{{ pic.length }}张图片到</span><span class="album-name" :title="selected.adescribe">{{ selected.aname }}</span>
-          <span class="gray">创建日期：{{ selected.acreateTime }}</span>
+          <div v-if="albumList.length != 0">
+            <span>上传{{ pic.length }}张图片到</span><span class="album-name" :title="selected.adescribe">{{ selected.aname }}</span>
+            <span class="gray">创建日期：{{ selected.acreateTime }}</span>
+          </div>
+          <span v-else>还没有相册，先新建一个吧</span>
           <div class="upload-btn-wrapper">
             <button class="btn-choose" v-if="pic.length != 0" @click="choosePic"><span>继续选择</span></button>
             <button class="btn-upload" v-if="pic.length != 0" @click="uploadPic"><span>开始上传</span></button>
@@ -73,7 +76,9 @@ export default {
 
   },
   watch: {
-
+    albumList(val) {
+      this.selected = val[0]
+    }
   },
   methods: {
     newAlbum() {

@@ -15,15 +15,24 @@
         </div>
         <div class="input-wrapper">
           <span class="name">标签</span>
-          <div class="label-wrapper">
-            <!-- <div class="select-label" v-for="">
 
-            </div> -->
+          <!-- /* TODO */ -->
+          <div class="gender-wrapper">
+            <input class="gender-input" v-model="recTag"/>
+            <a class="gender-select" @click="showGender()"></a>
+            <div class="gender-list" v-if="showgender">
+              <a class="gender" @click="showGender(index)" v-for="(t,index) in tag">{{ t.tname }}</a>
+            </div>
+          </div>
+          <!-- <div class="label-wrapper">
+            <div class="select-label" v-for="">
+
+            </div>
             <div class="search-label">
               <input type="text" v-model="search" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"/>
               <div class="seach-result"></div>
             </div>
-          </div>
+          </div> -->
           <span class="gray">{{ labellen }}/5</span>
         </div>
       </div>
@@ -48,7 +57,12 @@ export default {
       label: '2',
       labellen: 0,
 
-      search: ''
+      search: '',
+
+      showgender: false,
+      recTag: '',
+      recTagId: '',
+      tag: ''
     }
   },
   mounted() {
@@ -61,6 +75,7 @@ export default {
         this.adescribe = album.adescribe
       }
     },100)
+    this.getTag()
   },
   watch: {
     aname(val, old){
@@ -76,14 +91,15 @@ export default {
   },
   methods: {
     newAlbum(){
-      if(!this.aname) return tools.info('请将名称填写完整', 'error')
+      if(!this.aname || !this.adescribe || !this.recTag) return tools.info('请将所有信息填写完整', 'error')
+      console.log(this.recTag);
       let vm = this
       let obj = {
         url: '/album/createAlbum',
         args: {
           aname: vm.aname,
           adescribe: vm.adescribe,
-          tags: vm.label
+          tags: vm.recTagId
         },
         success: function(res) {
           tools.info('创建成功', 'success')
@@ -97,8 +113,35 @@ export default {
       }
       Ajax(obj)
     },
+    getTag() {
+      let vm = this
+      let obj = {
+        url: '/tag/getAllTag',
+        opt: 'get',
+        args: {
+
+        },
+        success: function(res) {
+          vm.tag = res.data
+        },
+        error: function(res) {
+          tools.info('获取标签列表失败，请刷新后重试', 'error')
+        },
+        asy: true
+      }
+      Ajax(obj)
+    },
     closeDialog() {
       this.$emit('closeDialog')
+    },
+    showGender(i) {
+      if(typeof i != 'undefined'){
+        this.recTag = this.tag[i].tname
+        this.recTagId = this.tag[i].tagId
+        this.showgender = false
+      } else {
+        this.showgender = !this.showgender
+      }
     },
   }
 }
@@ -133,7 +176,7 @@ export default {
   background: #fff;
   border-radius: 3px;
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  overflow: none;
   transition: all .3s ease;
   opacity: 0;
   z-index: 6;
@@ -175,8 +218,9 @@ export default {
   width: 100%;
   height: calc(100% - 40px);
   padding: 20px 40px;
-  overflow: auto;
+  overflow: none;
   box-sizing: border-box;
+
 }
 .input-wrapper {
   display: grid;
@@ -231,6 +275,63 @@ export default {
   padding: 0;
   background: transparent
 }
+
+/* TODO */
+.gender-wrapper {
+  position: relative;
+  width: 80px;
+  box-sizing: border-box;
+}
+.gender-input {
+  width: 80px;
+  height: 30px;
+  padding-left: 10px !important;
+  box-sizing: border-box;
+}
+.gender-select {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 30px;
+  box-sizing: border-box;
+}
+.gender-select::after {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  font-family: 'iconfont';
+  content: '\e74a'
+}
+.gender-list {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 80px;
+  max-height: 90px;
+  background: white;
+  padding: 4px 0;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  overflow: auto;
+  z-index: 11
+}
+.gender {
+  display: block;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  padding-left: 10px;
+  box-sizing: border-box;
+}
+.gender:hover {
+  background: rgba(0,0,0,.05)
+}
+
+
 
 /* footer */
 .footer {

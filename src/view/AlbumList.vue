@@ -59,6 +59,7 @@ export default {
             data[i].acover = 'static/img/loading.gif'
           }
           vm.albumList = data
+          console.log(data);
         },
         error: function(res) {
           tools.info('获取相册失败，请刷新后重试', 'error')
@@ -70,6 +71,7 @@ export default {
     newImg(i, url) {
       let img = new Image()
       img.src = url ? 'http://localhost:6705' + url : 'static/img/default.jpg'
+      // img.src = url || 'static/img/default.jpg'
       img.onerror = () => {
         this.albumList[i].acover = 'static/img/error.jpg'
       }
