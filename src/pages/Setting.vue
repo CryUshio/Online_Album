@@ -9,7 +9,7 @@
       <div class="input-wrapper">
         <span class="name">性别</span>
         <div class="gender-wrapper">
-          <input class="gender-input" v-model="gender"/>
+          <input class="gender-input" :value="gender" disabled/>
           <a class="gender-select" @click="showGender()"></a>
           <div class="gender-list" v-if="showgender">
             <a class="gender" @click="showGender(0)">男</a>
@@ -19,11 +19,11 @@
       </div>
       <div class="input-wrapper">
         <span class="name">邮箱</span>
-        <input v-model="uemail" onkeyup="value=value.replace(/[`$'']/g, '')"/>
+        <input v-model="uemail"/>
       </div>
       <div class="input-wrapper">
         <span class="name">个性签名</span>
-        <textarea v-model="usign" onkeyup="value=value.replace(/[`$'']/g, '')"></textarea>
+        <textarea v-model="usign" maxlength="100"></textarea>
         <span class="gray">{{ usignlen }}/100</span>
       </div>
       <div class="input-wrapper btn-wrapper">
@@ -33,7 +33,7 @@
       <h3>密码设置</h3>
       <div class="input-wrapper">
         <span class="name">原密码</span>
-        <input type="password" v-model="upsd"/>
+        <input type="password" autoComplete="off" v-model="upsd"/>
       </div>
       <div class="input-wrapper">
         <span class="name">新密码</span>
@@ -53,43 +53,42 @@
 <script>
 export default {
   data() {
+    const state = this.$store.state.userInfo;
     return {
-      userInfo: this.$store.state.userInfo,
+      state,
       showgender: false,
 
-      usign: '',
-      usignlen: 0,
       uemail: '',
       ugender: 0,
-      gender: '',
-
+      usign: '',
       upsd: '',
       newupsd: '',
       newrupsd: '',
-
     }
   },
-  activated() {
-    this.getUserInfo()
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    },
+    gender() {
+      return this.ugender === 0 ? '男' : '女';
+    },
+    usignlen() {
+      return this.usign.length;
+    }
   },
-  watch: {
-    usign(val, old) {
-      this.usignlen = tools.strlen(val)
-      if (tools.strlen(val) > 100)
-        this.usign = old
+  updated() {
+    if (JSON.stringify(this.state) !== JSON.stringify(this.$store.state.userInfo)) {
+      this.state = this.$store.state.userInfo;
+      this.ugender = this.state.ugender;
+      this.usign = this.state.usignature || '';
+      this.uemail = this.state.uemail;
     }
   },
   methods: {
-    getUserInfo() {
-      this.usign = this.userInfo.usignature
-      this.uemail = this.userInfo.uemail
-      this.ugender = this.userInfo.ugender
-      this.gender = this.ugender == 0 ? '男' : '女'
-    },
     showGender(i) {
       if (typeof i != 'undefined') {
         this.ugender = i
-        this.gender = i == 0 ? '男' : '女'
         this.showgender = false
       } else {
         this.showgender = !this.showgender
@@ -100,13 +99,15 @@ export default {
 
       tools.loading();
       this.$store.dispatch('userEdit', {
-        ugender: vm.ugender,
-        uemail: vm.uemail,
-        usignature: vm.usign
+        ugender: this.ugender,
+        uemail: this.uemail,
+        usignature: this.usign
       }).then(() => {
         tools.info('修改成功', 'success')
       }).catch(() => {
         tools.info('修改失败', 'error')
+      }).finally(() => {
+        tools.loading(false);
       });
     },
     changePsd() {
@@ -115,13 +116,18 @@ export default {
 
       tools.loading();
       this.$store.dispatch('userChangePwd', {
-        upsd: vm.upsd,
-        newupsd: vm.newupsd
+        upsd: this.upsd,
+        newupsd: this.newupsd
       }).then(() => {
         tools.info('修改成功，要牢记密码哦~', 'success');
-      }).catch(() => {
-        tools.info('修改失败，请检查原密码是否正确', 'error');
-      })
+      }).catch((msg) => {
+        tools.info('原密码有误哦，再仔细检查下~', 'error');
+      }).finally(() => {
+        this.upsd = '';
+        this.newupsd = '';
+        this.newrupsd = '';
+        tools.loading(false);
+      });
     }
   }
 }

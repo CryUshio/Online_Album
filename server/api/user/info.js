@@ -2,10 +2,6 @@
 module.exports = async (ctx, { db, tokenPool }) => {
   const token = ctx.cookies.get('x-token');
   const uid = tokenPool.get(token);
-  if (!uid) {
-    ctx.body = { code: 999 };
-    return;
-  }
 
   const query = await db.sql(`SELECT * FROM user WHERE uid=${uid}`);
   if (query.code !== 0) {

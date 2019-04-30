@@ -45,7 +45,9 @@ export default {
     }
   },
   activated() {
-
+    if (!Cookies.get('x-token')) {
+      this.$router.push({ name: 'Index' });
+    }
   },
   methods: {
     goHome() {

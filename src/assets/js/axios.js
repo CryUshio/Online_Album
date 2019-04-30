@@ -12,7 +12,7 @@ axios.interceptors.response.use(({ data: res }) => {
   console.info('response: ', res);
   if (res.code === 999) {
     alert('登录已经过期，请重新登录。');
-    document.location.href = '/';
+    document.location.reload();
   }
   if (res.code === 0) {
     return Promise.resolve(res);

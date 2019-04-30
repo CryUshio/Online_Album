@@ -38,45 +38,46 @@
 export default {
   data() {
     return {
-      userInfo: this.$store.state.userInfo,
       userCenter: this.$store.state.userCenter,
 
       nav: [{
-          id: 0,
-          name: '主页',
-          class: 'nav-home',
-          path: 'Home',
-          select: true,
-        },{
-          id: 1,
-          name: '相册',
-          class: 'nav-pic',
-          path: 'Album',
-          select: false
-        },{
-          id: 2,
-          name: '收藏',
-          class: 'nav-clt',
-          path: 'Collection',
-          select: false
-        },{
-          id: 3,
-          name: '设置',
-          class: 'nav-set',
-          path: 'Setting',
-          select: false
-        }],
+        id: 0,
+        name: '主页',
+        class: 'nav-home',
+        path: 'Home',
+        select: true,
+      }, {
+        id: 1,
+        name: '相册',
+        class: 'nav-pic',
+        path: 'Album',
+        select: false
+      }, {
+        id: 2,
+        name: '收藏',
+        class: 'nav-clt',
+        path: 'Collection',
+        select: false
+      }, {
+        id: 3,
+        name: '设置',
+        class: 'nav-set',
+        path: 'Setting',
+        select: false
+      }],
     }
   },
-  activated() {
-
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    }
   },
   methods: {
     changeNav(index) {
       let arr = this.nav
-      if(arr[index].selected) return
+      if (arr[index].selected) return
 
-      for(let i=0;i<arr.length;i++)
+      for (let i = 0; i < arr.length; i++)
         arr[i].selected = false
       arr[index].selected = true
 
@@ -139,7 +140,7 @@ export default {
   float: left;
   width: 70px;
   height: 70px;
-  border: 2px solid rgba(255,255,255,.4);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 35px;
   box-sizing: border-box;
   overflow: hidden;
@@ -161,13 +162,13 @@ export default {
   box-sizing: border-box;
 }
 .user-name {
-  font-family: 'PingFang BD';
+  font-family: "PingFang BD";
   color: white;
   font-size: 20px;
   vertical-align: top;
 }
 .user-sign {
-  font-family: 'PingFang';
+  font-family: "PingFang";
   color: #d6d6d6;
   font-size: 13px;
   vertical-align: baseline;
@@ -193,7 +194,7 @@ export default {
 }
 .nav .text {
   vertical-align: middle;
-  transition: color .2s linear;
+  transition: color 0.2s linear;
 }
 .nav .text:hover {
   color: #00a1d6;
@@ -205,25 +206,25 @@ export default {
 .nav-pic::before,
 .nav-clt::before,
 .nav-set::before {
-  font-family: 'iconfont';
+  font-family: "iconfont";
   margin-right: 5px;
   font-size: 20px;
   vertical-align: middle;
 }
 .nav-home::before {
-  content: '\e63f';
+  content: "\e63f";
   color: #00c091;
 }
 .nav-pic::before {
-  content: '\e6b2';
+  content: "\e6b2";
   color: #fb7299;
 }
 .nav-clt::before {
-  content: '\e612';
+  content: "\e612";
   color: #f3a034;
 }
 .nav-set::before {
-  content: '\e604';
+  content: "\e604";
   color: #23c9ed;
 }
 
