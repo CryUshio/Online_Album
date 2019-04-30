@@ -73,35 +73,27 @@ export default {
       this.albumList = []
       this.album = this.$route.params.album || this.$store.state.photoList.album
       this.albumList.push(this.album)
-      this.$store.commit('setPhotoList', { album: this.album})
+      this.$store.commit('setPhotoList', { album: this.album })
       this.$store.commit('setLocalStorage')
     },
     getPhotoList() {
       tools.loading()
-      let vm = this
-      let obj = {
-        url: '/picture/pictureList',
-        opt: 'get',
-        args: {
-          uid: vm.userInfo.uid,
-          albumid: vm.album.aid,
-          label: '-1'
-        },
-        success: function(res) {
-          let data = res.data
-          for(let i=0;i<data.length;i++){
-            vm.newImg(i, data[i].purl)
-            data[i].purl = 'static/img/loading.gif'
-          }
-          vm.photoList = data
-        },
-        error: function(res) {
-          tools.info('获取图片失败，请刷新后重试', 'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+
+      this.$store.dispatch('getPicList', {
+        uid: this.userInfo.uid,
+        albumid: this.album.aid,
+        label: '-1'
+      }).then(({ data }) => {
+        for (let i = 0; i < data.length; i++) {
+          this.newImg(i, data[i].purl);
+          data[i].purl = 'static/img/loading.gif';
+        }
+        this.photoList = data;
+      }).catch(() => {
+        tools.info('获取图片失败，请刷新后重试', 'error');
+      })
     },
+
     newImg(i, url) {
       let img = new Image()
       img.src = 'http://localhost:6705' + url
@@ -113,64 +105,55 @@ export default {
         this.photoList[i].purl = img.src
       }
     },
-    multiManage(bool){
-      if(!this.multiMa) tools.info('点击图片进行管理','default')
-      if(this.multiMa && bool) this.multiMa = false
+    multiManage(bool) {
+      if (!this.multiMa) tools.info('点击图片进行管理', 'default')
+      if (this.multiMa && bool) this.multiMa = false
       else this.multiMa = bool
 
     },
     selected(pid) {
-      if(!this.multiMa) return
-      if(typeof this.selectList[pid] == 'undefined'){
+      if (!this.multiMa) return
+      if (typeof this.selectList[pid] == 'undefined') {
         this.$set(this.selectList, pid, true)
       } else {
         this.$delete(this.selectList, pid)
       }
     },
     deletePic() {
-      if(Object.keys(this.selectList).length == 0) return tools.info('你还没有选择图片呢','default')
-      let arr = []
-      for(let key in this.selectList) {
-        arr.push(key)
-      }
+      const arr = Object.keys(this.selectList);
+      if (arr.length === 0) return tools.info('你还没有选择图片呢', 'default')
+      
       tools.loading()
-      let vm = this
-      let obj = {
-        url: '/picture/deletePictue',
-        args: {
-          pid: arr.join(',')
-        },
-        success: function(res) {
-          tools.info('删除成功','success')
-          vm.selectList = {}
-          vm.getPhotoList()
-        },
-        error: function(res) {
-          tools.info('删除出问题了，请稍后重试..(｡•ˇ‸ˇ•｡)…', 'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+
+      this.$store.dispatch('deletePic', {
+        pid: arr,
+      }).then(() => {
+        tools.info('删除成功', 'success')
+        this.selectList = {}
+        this.getPhotoList()
+      }).catch(() => {
+        tools.info('删除出问题了，请稍后重试..(｡•ˇ‸ˇ•｡)…', 'error')
+      });
     },
     showDialog(type) {
       tools.preventScorll()
-      if(type == 'upload')
+      if (type == 'upload')
         this.uploadDialog = true
-      if(type == 'newAlbum')
+      if (type == 'newAlbum')
         this.newAlbumDialog = true
     },
     closeDialog() {
       tools.preventScorll(false)
-      if(this.uploadDialog)
+      if (this.uploadDialog)
         this.uploadDialog = false
-      if(this.newAlbumDialog)
+      if (this.newAlbumDialog)
         this.newAlbumDialog = false
     },
     backList() {
       this.multiMa = false
       this.selectList = {}
       this.photoList = []
-      this.$router.push({name: 'Album'})
+      this.$router.push({ name: 'Album' })
     }
   }
 }
@@ -191,8 +174,8 @@ export default {
   width: 100%;
   line-height: 60px;
   padding: 0 20px;
-  border-top: 1px solid rgba(0,0,0,.1);
-  border-bottom: 1px solid rgba(0,0,0,.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   /* background: rgba(0,0,0,.03); */
   box-sizing: border-box;
 }
@@ -206,30 +189,30 @@ export default {
   border-radius: 3px;
   font-size: 14px;
   cursor: pointer;
-  outline: none
+  outline: none;
 }
 .back-album {
-  font-family: 'PingFang BD';
+  font-family: "PingFang BD";
   /* font-weight: bold; */
   color: #3a8ee2;
   border: 1px solid #e0e0e0;
-  background: rgb(255,255,255)
+  background: rgb(255, 255, 255);
 }
 .back-album:hover {
-  background: rgb(251,251,251)
+  background: rgb(251, 251, 251);
 }
 .back-album:active {
-  background: rgb(245,245,245)
+  background: rgb(245, 245, 245);
 }
 .back-album::before {
   position: relative;
   top: 1px;
-  font-family: 'iconfont';
+  font-family: "iconfont";
   font-size: 16px;
   margin-right: 4px;
 }
 .back-album::before {
-  content: '\e624'
+  content: "\e624";
 }
 
 /* detail */
@@ -240,7 +223,7 @@ export default {
   min-width: 960px;
   line-height: 110px;
   padding: 20px 20px 10px 20px;
-  background: rgba(0,0,0,.02);
+  background: rgba(0, 0, 0, 0.02);
   /* border-bottom: 1px solid rgba(0,0,0,.1); */
   box-sizing: border-box;
 }
@@ -263,7 +246,7 @@ export default {
   padding-right: 130px;
   display: inline-grid;
   grid-template-rows: 50% 50%;
-  grid-template-areas: 'title title''op vi';
+  grid-template-areas: "title title" "op vi";
   margin-left: 10px;
   box-sizing: border-box;
   /* align-items: end; */
@@ -292,7 +275,7 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #6b6b6b
+  color: #6b6b6b;
 }
 .op-wrapper {
   grid-area: op;
@@ -310,7 +293,7 @@ export default {
   font-size: 15px;
   color: black;
   background: #ffffff;
-  border: 1px solid rgba(0,0,0,.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
 .btn:hover {
@@ -319,43 +302,43 @@ export default {
 }
 .upload {
   color: white;
-  background: #3a8ee2
+  background: #3a8ee2;
 }
 .upload:hover {
   color: white;
-  background: #3583d0
+  background: #3583d0;
 }
 .upload:active {
   color: white;
-  background: #2c6fb1
+  background: #2c6fb1;
 }
 .btn::before {
   position: relative;
   top: 1px;
-  font-family: 'iconfont';
+  font-family: "iconfont";
   font-size: 16px;
   margin-right: 4px;
 }
 .upload::before {
-  content: '\e665';
+  content: "\e665";
 }
 .btn-settings {
   /* width: 30px; */
-  transition: all .2s linear;
+  transition: all 0.2s linear;
 }
 .btn-multi-edit {
-  font-family: 'PingFang MD';
+  font-family: "PingFang MD";
   color: black;
 }
 .btn-settings::before {
   position: relative;
   left: 2px;
-  content: '\e604'
+  content: "\e604";
 }
 .btn-multi-edit::before {
   margin-left: -2px;
   margin-right: 1px;
-  content: '\e66f';
+  content: "\e66f";
 }
 
 .operation {
@@ -367,7 +350,6 @@ export default {
 }
 .btn-wq,
 .btn-mv {
-
 }
 .btn-rm {
   color: white;
@@ -384,9 +366,8 @@ export default {
 .btn-rm::before {
   position: relative;
   left: 2px;
-  content: '\e609'
+  content: "\e609";
 }
-
 
 /* content */
 .content-wrapper {
@@ -396,13 +377,13 @@ export default {
   min-width: 960px;
   padding: 5px 10px 10px 10px;
   box-sizing: border-box;
-  background: rgba(0,0,0,.02);
+  background: rgba(0, 0, 0, 0.02);
   color: #aaaaaa;
 }
 .content-wrapper::after {
   display: block;
   height: 0;
-  content: ' ';
+  content: " ";
   visibility: hidden;
   clear: both;
 }
@@ -410,8 +391,8 @@ export default {
   position: absolute;
   top: 40%;
   left: 50%;
-  font-family: 'PingFang';
-  content: '你还没有照片，赶紧上传吧！';
+  font-family: "PingFang";
+  content: "你还没有照片，赶紧上传吧！";
   font-size: 30px;
   color: #c6c6c6;
   transform: translateX(-50%) translateY(-70%);
@@ -424,7 +405,7 @@ export default {
   box-sizing: border-box;
 }
 .photo-item-wrapper::after {
-  content: '';
+  content: "";
   height: 0;
   display: block;
   margin-top: 75%;
@@ -465,7 +446,7 @@ export default {
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  border: 2px solid rgba(0,0,0,0);
+  border: 2px solid rgba(0, 0, 0, 0);
   box-sizing: border-box;
   text-align: center;
 }

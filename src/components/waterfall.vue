@@ -49,12 +49,12 @@ export default {
         // console.log(arr);
         for(let i=0;i < imgsArr.length;i++){
           let $div = $('<div class="picture-box"></div>');
-          let url = this.avartar(imgsArr[i].avartar)
+          let url = this.avatar(imgsArr[i].avatar)
           let content = `
           <img id="`+ imgsArr[i].pid +`" src="static/img/loading.gif" onerror="this.src='static/img/error.jpg'">
           <div class="pic-info-2-wrapper-2" data-pic-info-2="`+ imgsArr[i].uid +`">
             <div class="pic-info-2">
-              <div class="avartar-wrapper-2"><img class="user-avartar-2" src="`+ url +`"/></div>
+              <div class="avatar-wrapper-2"><img class="user-avatar-2" src="`+ url +`"/></div>
               <div class="user-info-2">
                 <div class="user-info-2-line"><span class="user-name-2">`+ imgsArr[i].uname +`</span></div>
                 <div class="user-info-2-line"><span class="user-sign-2">上传时间：`+ imgsArr[i].updateTime +`</span></div>
@@ -79,7 +79,7 @@ export default {
         $('#' + pid).attr('src',img.src)
       }
     },
-    avartar(url) {
+    avatar(url) {
       if(!url) return 'static/img/default_avartar.gif'
       else return ('http://localhost:6705' + url)
     },
@@ -130,7 +130,7 @@ export default {
   background-size: 100%;
   box-sizing: border-box;
 }
-.avartar-wrapper-2 {
+.avatar-wrapper-2 {
   display: inline-block;
   float: left;
   height: 40px;
@@ -140,7 +140,7 @@ export default {
   overflow: hidden;
   box-sizing: border-box;
 }
-.user-avartar-2 {
+.user-avatar-2 {
   width: 100%;
 }
 .user-info-2 {

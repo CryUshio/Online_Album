@@ -4,7 +4,7 @@
     <div class="head">
       <div class="head-bg">
         <div class="user-bar-wrapper">
-          <div class="avartar-wrapper"><img class="avartar" :src="userInfo.avartar"></div>
+          <div class="avatar-wrapper"><img class="avatar" :src="userInfo.avatar"></div>
           <div class="user-info">
             <div class="user-info-line"><span class="user-name">{{ userInfo.uname }}</span></div>
             <div class="user-info-line"><span class="user-sign">{{ userInfo.usignature || '暂无签名'}}</span></div>
@@ -135,7 +135,7 @@ export default {
   background: url(../assets/imgs/user_mask.png);
   box-sizing: border-box;
 }
-.avartar-wrapper {
+.avatar-wrapper {
   float: left;
   width: 70px;
   height: 70px;
@@ -144,7 +144,7 @@ export default {
   box-sizing: border-box;
   overflow: hidden;
 }
-.avartar {
+.avatar {
   width: 100%;
 }
 .user-info {

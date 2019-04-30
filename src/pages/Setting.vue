@@ -73,9 +73,9 @@ export default {
     this.getUserInfo()
   },
   watch: {
-    usign(val, old){
+    usign(val, old) {
       this.usignlen = tools.strlen(val)
-      if(tools.strlen(val)>100)
+      if (tools.strlen(val) > 100)
         this.usign = old
     }
   },
@@ -87,7 +87,7 @@ export default {
       this.gender = this.ugender == 0 ? '男' : '女'
     },
     showGender(i) {
-      if(typeof i != 'undefined'){
+      if (typeof i != 'undefined') {
         this.ugender = i
         this.gender = i == 0 ? '男' : '女'
         this.showgender = false
@@ -96,57 +96,32 @@ export default {
       }
     },
     editInfo() {
-      if(!validate.ckEmail(this.uemail)) return tools.info('邮箱格式错误','error')
+      if (!validate.ckEmail(this.uemail)) return tools.info('邮箱格式错误', 'error')
 
       tools.loading();
-      let vm = this
-      let obj = {
-        url: '/user/setUserInfo',
-        args: {
-          ugender: vm.ugender,
-          uemail: vm.uemail,
-          usignature: vm.usign
-        },
-        success: function(res) {
-          vm.$store.commit('setUserInfo',{
-            uemail: vm.uemail,
-            ugender: vm.ugender,
-            usignature: vm.usign
-          })
-          tools.info('修改成功','success')
-        },
-        error: function(res) {
-          tools.info('修改失败','error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      this.$store.dispatch('userEdit', {
+        ugender: vm.ugender,
+        uemail: vm.uemail,
+        usignature: vm.usign
+      }).then(() => {
+        tools.info('修改成功', 'success')
+      }).catch(() => {
+        tools.info('修改失败', 'error')
+      });
     },
     changePsd() {
-      if(!this.upsd) return tools.info('原密码不能为空','error')
-      if(this.newupsd !== this.newrupsd) return tools.info('新密码重复输入不一致','error')
+      if (!this.upsd) return tools.info('原密码不能为空', 'error')
+      if (this.newupsd !== this.newrupsd) return tools.info('新密码重复输入不一致', 'error')
 
       tools.loading();
-      let vm = this
-      let obj = {
-        url: '/user/setUserPsd',
-        args: {
-          upsd: vm.upsd,
-          newupsd: vm.newupsd
-        },
-        success: function(res) {
-          tools.info('修改成功，请重新登录','success')
-          localStorage.state = null
-          setTimeout(()=>{
-            window.location.reload()
-          },100)
-        },
-        error: function(res) {
-          tools.info('修改失败，请检查原密码是否正确','error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      this.$store.dispatch('userChangePwd', {
+        upsd: vm.upsd,
+        newupsd: vm.newupsd
+      }).then(() => {
+        tools.info('修改成功，要牢记密码哦~', 'success');
+      }).catch(() => {
+        tools.info('修改失败，请检查原密码是否正确', 'error');
+      })
     }
   }
 }
@@ -160,7 +135,7 @@ export default {
   box-sizing: border-box;
 }
 h3 {
-  font-family: 'PingFang MD';
+  font-family: "PingFang MD";
   font-weight: 500;
   margin: 0;
   margin-bottom: 20px;
@@ -174,7 +149,6 @@ h3 {
   line-height: 30px;
   margin-top: 10px;
   font-size: 14px;
-
 }
 .input-wrapper .name {
   text-align: left;
@@ -222,8 +196,8 @@ h3 {
   position: absolute;
   top: 0;
   right: 5px;
-  font-family: 'iconfont';
-  content: '\e74a'
+  font-family: "iconfont";
+  content: "\e74a";
 }
 .gender-list {
   position: absolute;
@@ -236,7 +210,7 @@ h3 {
   border: 1px solid rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
-  z-index: 1
+  z-index: 1;
 }
 .gender {
   display: block;
@@ -247,7 +221,7 @@ h3 {
   box-sizing: border-box;
 }
 .gender:hover {
-  background: rgba(0,0,0,.05)
+  background: rgba(0, 0, 0, 0.05);
 }
 .btn-wrapper {
   display: block;
@@ -258,7 +232,7 @@ h3 {
   text-align: right;
 }
 .btn-submit {
-  font-family: 'PingFang';
+  font-family: "PingFang";
   height: 26px;
   margin: 2px 0;
   width: 46px;
@@ -270,10 +244,10 @@ h3 {
   box-sizing: border-box;
 }
 .btn-submit:hover {
-  background: #3583d0
+  background: #3583d0;
 }
 .btn-submit:active {
-  background: #2c6fb1
+  background: #2c6fb1;
 }
 .hr {
   width: 100%;

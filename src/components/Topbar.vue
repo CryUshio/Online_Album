@@ -2,7 +2,7 @@
   <div id="topbar">
     <div class="wrapper-topbar">
       <router-link :to="{ name: 'Index'}"><div class="logo"></div></router-link>
-      <div class="avartar-wrapper" v-if="userInfo.isLogin"><img class="user-avartar" :src="userInfo.avartar"></div>
+      <div class="avatar-wrapper" v-if="userInfo.isLogin"><img class="user-avatar" :src="userInfo.avatar"></div>
       <div class="wrapper-topbar-user">
         <a @click="goHome" v-if="userInfo.isLogin">
           <router-link :to="{ name: 'Home'}" style="color: black">{{ userInfo.uname }}，欢迎你！</router-link>
@@ -22,13 +22,13 @@ export default {
       userInfo: this.$store.state.userInfo,
     }
   },
-  mounted(){
+  mounted() {
     this.$store.commit('getLocalStorage')
   },
   activated() {
-    if(!this.userInfo.uid){
-      this.$router.push({name: 'Index'})
-    }
+    // if(!this.userInfo.uid){
+    //   this.$router.push({name: 'Index'})
+    // }
   },
   methods: {
     goHome() {
@@ -43,21 +43,13 @@ export default {
     },
     logout() {
       tools.loading()
-      let vm = this;
-      let obj = {
-        url: '/user/logout',
-        args: {},
-        success: function() {
-          localStorage.state = null
-          tools.info('退出成功，即将跳转到首页', 'success')
-          setTimeout(()=>{
+      this.$store.dispatch('userLogout')
+        .then(() => {
+          tools.info('退出成功，即将跳转到首页', 'success');
+          setTimeout(() => {
             window.location.reload()
-          },1000)
-
-        },
-        asy: true
-      }
-      Ajax(obj)
+          }, 1000);
+        });
     },
   }
 }
@@ -94,9 +86,9 @@ export default {
   line-height: 60px;
   width: auto;
   margin-right: 10px;
-  font-family: 'PingFang MD';
+  font-family: "PingFang MD";
 }
-.avartar-wrapper {
+.avatar-wrapper {
   display: inline-block;
   /* float: right; */
   height: 40px;
@@ -107,7 +99,7 @@ export default {
   overflow: hidden;
   box-sizing: border-box;
 }
-.user-avartar {
+.user-avatar {
   width: 100%;
 }
 .wrapper-topbar-user a {
@@ -116,10 +108,10 @@ export default {
   margin: 0 10px;
   white-space: normal;
   text-overflow: ellipsis;
-  transition: color .3s ease-in-out;
+  transition: color 0.3s ease-in-out;
 }
 .wrapper-topbar-user a:hover {
-  color: black
+  color: black;
 }
 .logo {
   position: absolute;

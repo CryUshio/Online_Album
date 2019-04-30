@@ -63,7 +63,7 @@ export default {
         submit: '登录',
         tip: '没有账号？',
         to: '注册',
-      },{
+      }, {
         slogan: '注册OA，管理和分享图片',
         unameHint: '用户名',
         upsdHint: '密码（字母开头，长度在6~18之间）',
@@ -83,14 +83,14 @@ export default {
     }
   },
   mounted() {
-    setTimeout(()=>{
+    setTimeout(() => {
       this.transIn = true
-    },100)
+    }, 100)
   },
   watch: {
     uname(val) {
       let uname = $('#uname')
-      if(val == '') {
+      if (val == '') {
         uname.removeClass('input-error')
         uname.text(this.info[this.recent].unameHint)
       } else {
@@ -99,7 +99,7 @@ export default {
     },
     upsd(val) {
       let upsd = $('#upsd')
-      if(val == '') {
+      if (val == '') {
         upsd.removeClass('input-error')
         upsd.text(this.info[this.recent].upsdHint)
       } else {
@@ -108,7 +108,7 @@ export default {
     },
     urpsd(val) {
       let urpsd = $('#urpsd')
-      if(val == '') {
+      if (val == '') {
         urpsd.removeClass('input-error')
         urpsd.text('确认密码')
       } else {
@@ -117,7 +117,7 @@ export default {
     },
     uemail(val) {
       let uemail = $('#uemail')
-      if(val == '') {
+      if (val == '') {
         uemail.removeClass('input-error')
         uemail.text('邮箱')
       } else {
@@ -127,69 +127,69 @@ export default {
   },
   methods: {
     onInput(type) {
-      if(type == 'name') {
+      if (type == 'name') {
         let name = $('#uname')
         name.next().removeClass('input-error-line')
-        if(!this.uname){
-          name.attr('class','input-hint')
+        if (!this.uname) {
+          name.attr('class', 'input-hint')
           name.text(this.info[this.recent].unameHint)
         }
       }
-      if(type == 'psd') {
+      if (type == 'psd') {
         let psd = $('#upsd')
         psd.next().removeClass('input-error-line')
-        if(!this.upsd){
-          psd.attr('class','input-hint')
+        if (!this.upsd) {
+          psd.attr('class', 'input-hint')
           psd.text(this.info[this.recent].upsdHint)
         }
       }
-      if(type == 'rpsd') {
+      if (type == 'rpsd') {
         let rpsd = $('#urpsd')
         rpsd.next().removeClass('input-error-line')
-        if(!this.urpsd){
-          rpsd.attr('class','input-hint')
+        if (!this.urpsd) {
+          rpsd.attr('class', 'input-hint')
           rpsd.text('确认密码')
         }
       }
-      if(type == 'email') {
+      if (type == 'email') {
         let email = $('#uemail')
         email.next().removeClass('input-error-line')
-        if(!this.uemail) {
-          email.attr('class','input-hint')
+        if (!this.uemail) {
+          email.attr('class', 'input-hint')
           email.text('邮箱')
         }
       }
     },
     keydown(type) {
-      if(event.keyCode == 229){
-        if(type == 'name' && !this.uname){
+      if (event.keyCode == 229) {
+        if (type == 'name' && !this.uname) {
           $('#uname').text('')
         }
-        if(type == 'email' && !this.uemail)
+        if (type == 'email' && !this.uemail)
           $('#uemail').text('')
       }
     },
     onsubmit(type) {
       let bool = true
-      if(!this.uname) {
+      if (!this.uname) {
         let uname = $('#uname')
         uname.addClass('input-error')
         uname.text('请输入' + this.info[this.recent].unameHint)
         bool = false
       }
-      if(!this.upsd) {
+      if (!this.upsd) {
         let upsd = $('#upsd')
         upsd.addClass('input-error')
         upsd.text('请输入密码')
         bool = false
       }
-      if(!this.urpsd && type == 'register') {
+      if (!this.urpsd && type == 'register') {
         let urpsd = $('#urpsd')
         urpsd.addClass('input-error')
         urpsd.text('请输入确认密码')
         bool = false
       }
-      if(!this.uemail && type == 'register') {
+      if (!this.uemail && type == 'register') {
         let uemail = $('#uemail')
         uemail.addClass('input-error')
         uemail.text('请输入邮箱')
@@ -202,7 +202,7 @@ export default {
       let upsd = $('#upsd')
       let urpsd = $('#urpsd')
       let uemail = $('#uemail')
-      if(to == 0) {
+      if (to == 0) {
         this.recent = 1
         uname.removeClass('input-error')
         uname.text(this.info[this.recent].unameHint)
@@ -213,7 +213,7 @@ export default {
         this.uname = ''
         this.upsd = ''
       }
-      if(to == 1) {
+      if (to == 1) {
         this.recent = 0;
         uname.removeClass('input-error')
         uname.text(this.info[this.recent].unameHint)
@@ -238,83 +238,58 @@ export default {
       this.$emit('closeDialog')
     },
     submit() {
-      if(this.recent == 0) {
+      if (this.recent == 0) {
         this.login()
       } else {
         this.register()
       }
     },
     login() {
-      if(!this.onsubmit()) return
-      if( !(validate.ckName(this.uname) || validate.ckEmail(this.uname)) ){
+      if (!this.onsubmit()) return
+      if (!(validate.ckName(this.uname) || validate.ckEmail(this.uname))) {
         $('#uname').next().addClass('input-error-line')
-        return tools.info('用户名或邮箱格式错误','error')
+        return tools.info('用户名或邮箱格式错误', 'error')
       }
 
       tools.loading();
       this.inLogin = true
-      setTimeout(()=>{this.inLogin = false},10000)
+      setTimeout(() => { this.inLogin = false }, 10000)
       let vm = this
-      let obj = {
-        url: '/user/login',
-        args: {
-          uname: vm.uname,
-          upsd: vm.upsd
-        },
-        success: function(res) {
 
-          vm.closeDialog()
-          tools.info('登录成功','success')
-          vm.$store.commit('setUserInfo',{
-            isLogin: true,
-            uid: res.data.uid,
-            uname: res.data.uname,
-            avartar: res.data.avartar || 'static/img/default_avartar.gif',
-            uemail: res.data.uemail,
-            usignature: res.data.usignature,
-            ugender: res.data.ugender
-          })
-          vm.$store.commit('setLocalStorage')
-
-        },
-        error: function(res) {
-          vm.inLogin = false
-          tools.info('用户名或密码错误','error')
-          $('#uname').next().addClass('input-error-line')
-          $('#upsd').next().addClass('input-error-line')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      this.$store.dispatch('userLogin', {
+        uname: this.uname,
+        upsd: this.upsd
+      }).then(() => {
+        this.closeDialog();
+        tools.info('登录成功', 'success');
+      }).catch(() => {
+        this.inLogin = false
+        tools.info('用户名或密码错误', 'error')
+        $('#uname').next().addClass('input-error-line')
+        $('#upsd').next().addClass('input-error-line')
+      });
     },
     register() {
-      if(!this.onsubmit('register')) return
-      if(this.upsd != this.urpsd) return
+      if (!this.onsubmit('register')) return
+      if (this.upsd != this.urpsd) return
 
       tools.loading();
       this.inLogin = true
-      setTimeout(()=>{this.inLogin = false},10000)
-      let vm = this
-      let obj = {
-        url: '/user/register',
-        args: {
-          uname: vm.uname,
-          upsd: vm.upsd,
-          //'ugender': this.ugender,
-          //'usign': this.usign,
-          uemail: vm.uemail
-        },
-        success: function(res) {
-          tools.info('注册成功！请登录','success')
-          vm.closeDialog()
-        },
-        error: function(res) {
-          vm.inLogin = false
-          tools.info(res.msg,'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      setTimeout(() => { this.inLogin = false }, 10000)
+
+      this.$store.dispatch('userRegister', {
+        uname: this.uname,
+        upsd: this.upsd,
+        //'ugender': this.ugender,
+        //'usign': this.usign,
+        uemail: this.uemail
+      }).then(() => {
+        tools.info('注册成功！请登录', 'success');
+        this.closeDialog();
+      }).catch((res) => {
+        this.inLogin = false;
+        tools.info(res.msg, 'error');
+      });
 
     }
   }
@@ -323,25 +298,25 @@ export default {
 
 <style lang="css" scoped>
 ::-webkit-scrollbar {
-  display: none
+  display: none;
 }
 
 .dialog {
   position: fixed;
-  top:45%;
-  left:50%;
+  top: 45%;
+  left: 50%;
   width: 420px;
   max-height: calc(100vh - 24px * 2);
   background: #fff;
   border-radius: 3px;
   overflow-y: auto;
-  transform:translateX(-50%) translateY(-50%);
-  transition: all .3s ease;
+  transform: translateX(-50%) translateY(-50%);
+  transition: all 0.3s ease;
   opacity: 0;
   z-index: 4;
 }
 .dialog-in {
-  top:50%;
+  top: 50%;
   opacity: 1;
 }
 .close-wrapper {
@@ -386,7 +361,7 @@ export default {
   width: 100%;
   padding: 0 40px 40px 40px;
   box-sizing: border-box;
-  transition: all .2s linear;
+  transition: all 0.2s linear;
 }
 .model-wrapper {
   position: relative;
@@ -394,7 +369,7 @@ export default {
   height: 45px;
   margin-top: 12px;
   font-size: 14px;
-  transition: all .2s linear;
+  transition: all 0.2s linear;
 }
 .model-wrapper-hidden {
   overflow: hidden;
@@ -423,7 +398,7 @@ export default {
   line-height: 45px;
   text-align: left;
   color: #a1a1a1;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
   z-index: -1;
 }
 .input-error {

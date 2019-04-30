@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import index from '@/view/Index.vue'
-import userCenter from '@/view/UserCenter'
-import home from '@/view/Home'
-import albumList from '@/view/AlbumList'
-import photoList from '@/view/PhotoList'
-import collection from '@/view/Collection'
-import setting from '@/view/Setting'
+import index from '@/pages/Index.vue'
+import userCenter from '@/pages/UserCenter'
+import home from '@/pages/Home'
+import albumList from '@/pages/AlbumList'
+import photoList from '@/pages/PhotoList'
+import collection from '@/pages/Collection'
+import setting from '@/pages/Setting'
 
 
 Vue.use(Router)
@@ -14,7 +14,6 @@ Vue.use(Router)
 let routes = [{
     path: '/',
     redirect: '/Index',
-    component: index
   },{
     path: '/Index',
     name: 'Index',
@@ -49,7 +48,7 @@ let routes = [{
 
 const router = new Router({
   // mode: ['history'],
-  routes : routes,
+  routes,
   scrollBehavior (to, from, savedPosition) {
     if(to.name == 'Index' || from.name == 'Index')
       return { y: 0 }

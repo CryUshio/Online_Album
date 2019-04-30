@@ -45,29 +45,18 @@ export default {
   methods: {
     getAlbumList() {
       tools.loading()
-      let vm = this
-      let obj = {
-        url: '/album/getUserAlbumList',
-        opt: 'get',
-        args: {
-
-        },
-        success: function(res) {
-          let data = res.data
-          for(let i=0;i<data.length;i++){
-            vm.newImg(i, data[i].acover)
-            data[i].acover = 'static/img/loading.gif'
-          }
-          vm.albumList = data
-          console.log(data);
-        },
-        error: function(res) {
-          tools.info('获取相册失败，请刷新后重试', 'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      this.$store.dispatch('getAlbumList').then(({ data }) => {
+        for (let i = 0; i < data.length; i++) {
+          this.newImg(i, data[i].acover)
+          data[i].acover = 'static/img/loading.gif'
+        }
+        this.albumList = data
+        console.log(data);
+      }).catch(() => {
+        tools.info('获取相册失败，请刷新后重试', 'error');
+      });
     },
+
     newImg(i, url) {
       let img = new Image()
       img.src = url ? 'http://localhost:6705' + url : 'static/img/default.jpg'
@@ -80,23 +69,23 @@ export default {
       }
     },
     toPicList(i) {
-      this.$router.push({name: 'Photo', params: { album: this.albumList[i] }})
+      this.$router.push({ name: 'Photo', params: { album: this.albumList[i] } })
     },
     showDialog(type) {
       tools.preventScorll()
-      if(type == 'upload')
+      if (type == 'upload')
         this.uploadDialog = true
-      if(type == 'newAlbum')
+      if (type == 'newAlbum')
         this.newAlbumDialog = true
     },
     closeDialog() {
-      if(this.uploadDialog && this.newAlbumDialog){
+      if (this.uploadDialog && this.newAlbumDialog) {
         this.newAlbumDialog = false
       } else {
         tools.preventScorll(false)
-        if(this.uploadDialog)
+        if (this.uploadDialog)
           this.uploadDialog = false
-        if(this.newAlbumDialog)
+        if (this.newAlbumDialog)
           this.newAlbumDialog = false
       }
     },
@@ -120,7 +109,7 @@ export default {
   line-height: 60px;
   padding: 0 20px;
   /* border-top: 1px solid rgba(0,0,0,.1); */
-  border-bottom: 1px solid rgba(0,0,0,.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   /* background: rgba(0,0,0,.03); */
   box-sizing: border-box;
 }
@@ -135,44 +124,44 @@ export default {
   border-radius: 3px;
   font-size: 14px;
   cursor: pointer;
-  outline: none
+  outline: none;
 }
 .upload {
   color: white;
-  background: #3a8ee2
+  background: #3a8ee2;
 }
 .upload:hover {
-  background: #3583d0
+  background: #3583d0;
 }
 .upload:active {
-  background: #2c6fb1
+  background: #2c6fb1;
 }
 .new-album {
-  font-family: 'PingFang BD';
+  font-family: "PingFang BD";
   /* font-weight: bold; */
   color: #3a8ee2;
   border: 1px solid #e0e0e0;
-  background: rgb(255,255,255)
+  background: rgb(255, 255, 255);
 }
 .new-album:hover {
-  background: rgb(251,251,251)
+  background: rgb(251, 251, 251);
 }
 .new-album:active {
-  background: rgb(245,245,245)
+  background: rgb(245, 245, 245);
 }
 .upload::before,
 .new-album::before {
   position: relative;
   top: 1px;
-  font-family: 'iconfont';
+  font-family: "iconfont";
   font-size: 16px;
   margin-right: 4px;
 }
 .upload::before {
-  content: '\e665';
+  content: "\e665";
 }
 .new-album::before {
-  content: '\e623'
+  content: "\e623";
 }
 
 /* content */
@@ -182,13 +171,13 @@ export default {
   min-height: 480px;
   padding: 5px 10px 10px 10px;
   box-sizing: border-box;
-  background: rgba(0,0,0,.02);
+  background: rgba(0, 0, 0, 0.02);
   color: #aaaaaa;
 }
 .content-wrapper::after {
   display: block;
   height: 0;
-  content: ' ';
+  content: " ";
   visibility: hidden;
   clear: both;
 }
@@ -196,8 +185,8 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  font-family: 'PingFang';
-  content: '你还没有相册，赶紧创建一个吧！';
+  font-family: "PingFang";
+  content: "你还没有相册，赶紧创建一个吧！";
   font-size: 30px;
   color: #c6c6c6;
   transform: translateX(-50%) translateY(-70%);
@@ -209,7 +198,7 @@ export default {
   box-sizing: border-box;
 }
 .album-item-wrapper::after {
-  content: '';
+  content: "";
   height: 0;
   display: block;
   margin-top: 100%;

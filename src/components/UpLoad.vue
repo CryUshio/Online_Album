@@ -67,10 +67,10 @@ export default {
     }
   },
   mounted() {
-    setTimeout(()=>{
+    setTimeout(() => {
       this.transIn = true
-    },100)
-    this.selected = this.albumList[0]
+    }, 100)
+    this.selected = this.albumList[0] || {}
   },
   computed: {
 
@@ -92,23 +92,23 @@ export default {
     },
     selectedPic() {
       let obj = document.getElementById("file").files
-      if(obj.length == 0) return
-      for(let i=0;i<obj.length;i++) {
-        if(this.checkPic(obj[i])){
+      if (obj.length == 0) return
+      for (let i = 0; i < obj.length; i++) {
+        if (this.checkPic(obj[i])) {
           obj[i].url = this.getImgUrl(obj[i])
-          obj[i].pname = obj[i].name.toLowerCase().replace(/(.jpg)|(.jpeg)|(.png)|(.gif)/g,'')
+          obj[i].pname = obj[i].name.toLowerCase().replace(/(.jpg)|(.jpeg)|(.png)|(.gif)/g, '')
           this.pic.push(obj[i])
         }
       }
-      tools.info('图片已添加','success')
+      tools.info('图片已添加', 'success')
     },
     getImgUrl(obj) {
       let imgURL = ""
-      if(window.createObjectURL != undefined){
+      if (window.createObjectURL != undefined) {
         imgURL = window.createObjectURL(obj)  //basic
-      }else if(window.URL != undefined){
+      } else if (window.URL != undefined) {
         imgURL = window.URL.createObjectURL(obj)
-      }else if(window.webkitURL != undefined){
+      } else if (window.webkitURL != undefined) {
         imgURL = window.webkitURL.createObjectURL(obj)
       }
       return imgURL
@@ -116,16 +116,16 @@ export default {
     checkPic(obj) {
       let pic = this.pic
       let bool = true
-      if(pic.length == 0) return bool
-      for(let i=0;i<pic.length;i++){
-        if(pic[i].name == obj.name && pic[i].size == obj.size){
+      if (pic.length == 0) return bool
+      for (let i = 0; i < pic.length; i++) {
+        if (pic[i].name == obj.name && pic[i].size == obj.size) {
           bool = false
         }
       }
       return bool
     },
     showPicBar(type, i) {
-      if(type){
+      if (type) {
         this.showBar.show = true
         this.showBar.index = i
       } else {
@@ -133,51 +133,47 @@ export default {
       }
     },
     delPic(i) {
-      this.pic.splice(i,1)
+      this.pic.splice(i, 1)
     },
     editPic(i) {
 
     },
     uploadPic(img) {
+      if (!this.selected.aid) {
+        tools.info('你还没有选择相册', 'default')
+        return;
+      }
       this.isInUpload = true
       let count = this.pic.length
       let i = 0
-      let vm = this
-      console.log(vm.pic);
+      console.log(this.pic);
+
       push()
 
       function push() {
-        console.log(i);
-        let obj = {
-          url: '/picture/uploadPicture',
-          args: {
-            pname: vm.pic[i].pname,
-            img: vm.pic[i],
-            aid: vm.selected.aid
-          },
-          success: function(res) {
-            if(++i < count) {
-              push()
-            }
-            else {
-              vm.$emit('uploadSuc')
-              tools.info('上传完成', 'success')
-              vm.closeDialog()
-            }
-          },
-          error: function(res) {
-            tools.info(res.msg, 'error')
-            console.log('error');
-            if(++i < count) push()
-            else {
-              vm.closeDialog()
-              tools.info('上传完成', 'success')
-              vm.$emit('uploadSuc')
-            }
-          },
-          asy: true
-        }
-        Ajax(obj)
+        const formData = new FormData();
+        formData.append('img', this.pic[i]);
+        this.$store.dispatch('upload', {
+          pname: this.pic[i].pname,
+          img: this.pic[i],
+          aid: this.selected.aid
+        }).then(() => {
+          if (++i < count) {
+            push()
+          } else {
+            this.$emit('uploadSuc')
+            tools.info('上传完成', 'success')
+            this.closeDialog()
+          }
+        }).catch(() => {
+          tools.info(res.msg, 'error')
+          if (++i < count) push()
+          else {
+            this.closeDialog()
+            tools.info('上传完成', 'success')
+            this.$emit('uploadSuc')
+          }
+        })
       }
     },
     closeDialog() {
@@ -190,42 +186,42 @@ export default {
 <style scoped>
 ::-webkit-scrollbar {
   /* display: none; */
-   width: 8px;
-   height: 8px
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track-piece {
-   background-color: transparent
+  background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-   border-radius: 9px;
-   background-color: rgba(195, 195, 195, 0.3)
+  border-radius: 9px;
+  background-color: rgba(195, 195, 195, 0.3);
 }
 ::-webkit-scrollbar-thumb:hover {
-   background-color: rgba(126, 126, 126, 0.6)
+  background-color: rgba(126, 126, 126, 0.6);
 }
 
 .upload-wrapper {
   position: fixed;
-  top:45%;
-  left:50%;
+  top: 45%;
+  left: 50%;
   min-width: 720px;
   min-height: 360px;
   width: 1366px;
   height: 768px;
   max-width: calc(100vw - 24px * 2);
   max-height: calc(100vh - 36px * 2);
-  transform:translateX(-50%) translateY(-50%);
-  font-family: 'PingFang MD';
+  transform: translateX(-50%) translateY(-50%);
+  font-family: "PingFang MD";
   background: #fff;
   border-radius: 3px;
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
   opacity: 0;
   z-index: 4;
 }
 .upload-wrapper-in {
-  top:50%;
+  top: 50%;
   opacity: 1;
 }
 
@@ -240,7 +236,7 @@ export default {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   background: rgba(0, 0, 0, 0.05);
   font-size: 14px;
-  color: #4C4C4C;
+  color: #4c4c4c;
   box-sizing: border-box;
 }
 .title i {
@@ -248,8 +244,8 @@ export default {
   right: 13px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'iconfont';
-  content: '\e625';
+  font-family: "iconfont";
+  content: "\e625";
   font-size: 14px;
   color: #a3a2a2;
   cursor: pointer;
@@ -265,7 +261,7 @@ export default {
   height: calc(100% - 40px);
   grid-template-columns: 160px auto;
   grid-template-rows: 50px calc(100% - 50px);
-  grid-template-areas: 'choose info' 'list upload';
+  grid-template-areas: "choose info" "list upload";
   font-size: 15px;
 }
 
@@ -280,7 +276,7 @@ export default {
   padding: 0 15px;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  background: #FFF;
+  background: #fff;
   color: #999;
   font-size: 15px;
   box-sizing: border-box;
@@ -335,12 +331,12 @@ export default {
   cursor: pointer;
 }
 .album-list .item:hover {
-  background: rgba(0,0,0,.03)
+  background: rgba(0, 0, 0, 0.03);
 }
 .album-list .item-selected,
 .album-list .item-selected:hover {
   color: white;
-  background: #3a8ee2
+  background: #3a8ee2;
 }
 .album-list .num {
   position: absolute;
@@ -381,7 +377,7 @@ export default {
   /* cursor: pointer; */
 }
 .upload-area-title .gray {
-  color: #bfbfbf
+  color: #bfbfbf;
 }
 .upload-btn-wrapper {
   position: absolute;
@@ -402,10 +398,10 @@ export default {
 }
 .btn-choose {
   border: 1px solid #e0e0e0;
-  background: rgb(255,255,255)
+  background: rgb(255, 255, 255);
 }
 .btn-choose:hover {
-  background: rgb(245,245,245)
+  background: rgb(245, 245, 245);
 }
 .btn-upload {
   border: 1px solid #5caae6;
@@ -415,7 +411,6 @@ export default {
 .btn-upload:hover {
   background: #559cd4;
 }
-
 
 /* area-4 */
 .upload-area {
@@ -431,18 +426,18 @@ export default {
   overflow: auto;
 }
 .upload-area::after {
-  content: ' ';
+  content: " ";
   display: block;
-  visibility:hidden;
+  visibility: hidden;
   height: 0;
   line-height: 0;
   clear: both;
 }
 .upload {
   position: absolute;
-  top:50%;
-  left:50%;
-  transform:translateX(-50%) translateY(-50%);
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
   height: 50px;
   padding: 0 40px;
   border-radius: 2px;
@@ -458,8 +453,8 @@ export default {
 .upload::before {
   position: relative;
   top: 2px;
-  font-family: 'iconfont';
-  content: '\e639';
+  font-family: "iconfont";
+  content: "\e639";
   font-size: 30px;
   margin-right: 10px;
 }
@@ -468,29 +463,29 @@ export default {
   top: -3px;
 }
 
-
 .pic-border {
   float: left;
   min-width: 200px;
   border: 5px solid transparent;
   box-sizing: border-box;
 }
-@media screen and (min-width: 1280px) { /* vw >= 1080px */
+@media screen and (min-width: 1280px) {
+  /* vw >= 1080px */
   .pic-border {
     width: 25%;
-    height: 200px
+    height: 200px;
   }
 }
 @media screen and (min-width: 960px) and (max-width: 1279px) {
   .pic-border {
     width: 33.33333%;
-    height: 180px
+    height: 180px;
   }
 }
 @media screen and (max-width: 959px) {
   .pic-border {
     width: 50%;
-    height: 200px
+    height: 200px;
   }
 }
 .pic-wrapper {
@@ -516,8 +511,8 @@ export default {
   padding: 0 10px;
   color: white;
   text-align: right;
-  background: rgba(0,0,0,.3);
-  transition: top .1s ease-in;
+  background: rgba(0, 0, 0, 0.3);
+  transition: top 0.1s ease-in;
   box-sizing: border-box;
   /* z-index: 6 */
 }
@@ -527,7 +522,7 @@ export default {
 .icon-editor {
   position: relative;
   top: 1px;
-  font-size: 18px
+  font-size: 18px;
 }
 .icon-editor,
 .icon-del {
@@ -550,5 +545,4 @@ export default {
   text-align: center;
   box-sizing: border-box;
 }
-
 </style>

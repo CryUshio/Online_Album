@@ -2,10 +2,12 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store.js'
-import view from './view'
+import pages from './pages'
 import components from './components'
 
-Vue.use(view)
+import './assets/js/axios';
+
+Vue.use(pages)
 Vue.use(components)
 
 Vue.config.productionTip = false

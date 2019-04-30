@@ -1,29 +1,45 @@
 <template>
   <div>
     <div class="background">
-      <topbar :class="['topbar',{'topbar-hidden': topbarHide}]" @login="login" @register="register"></topbar>
+      <topbar
+        :class="['topbar',{'topbar-hidden': topbarHide}]"
+        @login="login"
+        @register="register"
+      ></topbar>
       <div class="head"></div>
       <div :class="['content', {'content-loading': isloading }]">
         <div class="content-title">
           <span>所有图片</span>
           <div class="wrapper-nav">
-            <a v-for="(item,index) in classification"
-            @click="changeClassification(index)"
-            :key="index"
-            :class="['wrapper-nav-normal', {'wrapper-nav-selected': item.selected}]">{{ item.name }}</a>
+            <a
+              :class="['wrapper-nav-normal', {'wrapper-nav-selected': item.selected}]"
+              :key="index"
+              @click="changeClassification(index)"
+              v-for="(item,index) in classification"
+            >{{ item.name }}</a>
           </div>
         </div>
         <div class="waterfall-wrapper">
-          <waterfall :ref="`waterfall_${index}`" @scrollLoad="scrollLoad" :lid='n.id'
-                      v-for="(n,index) in classification"
-                      v-if="n.id == recClassId" :key="index">
-          </waterfall>
+          <waterfall
+            :key="index"
+            :lid="n.id"
+            :ref="`waterfall_${index}`"
+            @scrollLoad="scrollLoad"
+            v-for="(n,index) in classification"
+            v-if="n.id == recClassId"
+          ></waterfall>
         </div>
-
       </div>
-      <div :class="['backTop-wrapper', {'backTop-wrapper-in': showBackTop}]" @click="backTop"><div class="backTop"></div></div>
+      <div
+        :class="['backTop-wrapper', {'backTop-wrapper-in': showBackTop}]"
+        @click="backTop"
+      >
+        <div class="backTop"></div>
+      </div>
       <footer>
-        <div class="wrapper-text"><span>Copyright © 2018 OA.All Rights Reserved.</span></div>
+        <div class="wrapper-text">
+          <span>Copyright © 2018 OA.All Rights Reserved.</span>
+        </div>
       </footer>
     </div>
 
@@ -33,7 +49,7 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       topbarHide: false,
       scrollTopOld: 0,
@@ -41,26 +57,26 @@ export default {
       isloading: false,
 
       classification: [{
-          id: -1,
-          name: '全部',
-          selected: true
-        },{
-          id: 2,
-          name: '自然',
-          selected: false
-        },{
-          id: 4,
-          name: '人物',
-          selected: false
-        },{
-          id: 8,
-          name: '动漫',
-          selected: false
-        },{
-          id: 9,
-          name: '美食',
-          selected: false
-        }],
+        id: -1,
+        name: '全部',
+        selected: true
+      }, {
+        id: 2,
+        name: '自然',
+        selected: false
+      }, {
+        id: 4,
+        name: '人物',
+        selected: false
+      }, {
+        id: 8,
+        name: '动漫',
+        selected: false
+      }, {
+        id: 9,
+        name: '美食',
+        selected: false
+      }],
       recClassId: -1,
 
       dialog: false,
@@ -87,13 +103,13 @@ export default {
   // },
   methods: {
     initPicBox() {
-      window.addEventListener('scroll', ()=>{
+      window.addEventListener('scroll', () => {
         this.scorllLoading()
       });
     },
-    addpic(){
+    addpic() {
       this.len += this.imgsArr.length
-      switch(this.recClassId){
+      switch (this.recClassId) {
         case -1:
           this.$refs.waterfall_0[0].addPicBox(this.imgsArr)
           break
@@ -114,28 +130,28 @@ export default {
     },
     changeClassification(index) {
       let arr = this.classification
-      if(arr[index].selected) return
+      if (arr[index].selected) return
 
-      for(let i=0;i<arr.length;i++)
+      for (let i = 0; i < arr.length; i++)
         arr[i].selected = false
       arr[index].selected = true
 
       this.len = 0
       this.recClassId = arr[index].id
-      setTimeout(()=>{
+      setTimeout(() => {
         this.scrollLoad()
-      },100)
+      }, 100)
     },
     scorllLoading() {
       // console.log($(window).scrollTop());
-      if(($(window).scrollTop() + $(window).height()*1.5) >= $(document).height()){
-        if(this.scrollTrigger){
+      if (($(window).scrollTop() + $(window).height() * 1.5) >= $(document).height()) {
+        if (this.scrollTrigger) {
           this.scrollLoad()
           this.scrollTrigger = false
         }
       }
 
-      if($(window).scrollTop() - this.scrollTopOld > 0){
+      if ($(window).scrollTop() - this.scrollTopOld > 0) {
         this.topbarHide = true
       } else {
         this.topbarHide = false
@@ -143,39 +159,31 @@ export default {
       this.scrollTopOld = $(window).scrollTop()
 
 
-      if($(window).scrollTop() > $(window).height()*2 ){
+      if ($(window).scrollTop() > $(window).height() * 2) {
         this.showBackTop = true
-      }else{
+      } else {
         this.showBackTop = false
       }
     },
     scrollLoad() {
-      console.log(this.recClassId);
       this.imgsArr = []
       this.isloading = true
-      let vm = this;
-      let obj = {
-        url: '/picture/pictureList',
-        opt: 'get',
-        args: {
-          'uid': -1, //空为首页
-          'albumid': -1 ,//空为首页
-          //'label': vm.classification[recClassId].name
-          'label': vm.recClassId,
-          'len': vm.len
-        },
-        success: function(res) {
-          vm.scrollTrigger = true
-          if(res.data.length == 0) return vm.isloading = false
-          vm.imgsArr = res.data;
-          vm.addpic()
-        },
-        asy: true
-      }
-      Ajax(obj)
+
+      this.$store.dispatch('getPicList', {
+        'uid': -1, // -1为首页
+        'albumid': -1,// -1为首页
+        //'label': this.classification[recClassId].name
+        'label': this.recClassId,
+        'len': this.len
+      }).then((res) => {
+        this.scrollTrigger = true
+        if (res.data.length == 0) return this.isloading = false
+        this.imgsArr = res.data;
+        this.addpic()
+      }).catch(() => { })
     },
     backTop(time) {
-      $('html').animate({scrollTop: 0}, 500);
+      $('html').animate({ scrollTop: 0 }, 500);
     },
 
     //function funcs
@@ -233,7 +241,7 @@ export default {
 }
 .topbar {
   top: 0;
-  transition: top .3s ease-out;
+  transition: top 0.3s ease-out;
 }
 .topbar-hidden {
   top: -63px !important;
@@ -261,8 +269,6 @@ export default {
   margin: 0 5px;
 } */
 
-
-
 /* body */
 .content {
   position: relative;
@@ -276,15 +282,15 @@ export default {
 .content::after,
 .content-loading::after {
   display: block;
-  font-family: 'PingFang';
-  content: '暂无更多';
+  font-family: "PingFang";
+  content: "暂无更多";
   width: 100%;
   color: rgb(167, 167, 167);
   text-align: center;
   clear: both;
 }
 .content-loading::after {
-  content: '加载中...';
+  content: "加载中...";
 }
 .content-title {
   position: relative;
@@ -333,11 +339,11 @@ export default {
   text-align: center;
   color: #999;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: all .3s linear;
+  transition: all 0.3s linear;
   cursor: pointer;
 }
 .backTop-wrapper:hover {
-  background: rgb(240, 240, 240)
+  background: rgb(240, 240, 240);
 }
 .backTop-wrapper-in {
   right: 1%;
@@ -354,7 +360,7 @@ export default {
 }
 .backTop::before {
   font-family: "iconfont";
-  content: '\e64a';
+  content: "\e64a";
 }
 /* footer */
 footer {

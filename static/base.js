@@ -22,16 +22,16 @@ function Ajax(obj) {
       return console.log('method error');
 
 
-    //登录验证
-    if(url!='/login' && localStorage.uid == '') {
-      tools.loading(false);
-      alert('用户未登录，自动跳转到首页');
-      setTimeout(function(){
-        window.location.reload()
-      },300);
-      window.location.href = document.location.origin + '/';
-      return;
-    }
+    // //登录验证
+    // if(url!='/login' && localStorage.uid == '') {
+    //   tools.loading(false);
+    //   alert('用户未登录，自动跳转到首页');
+    //   setTimeout(function(){
+    //     window.location.reload()
+    //   },300);
+    //   window.location.href = document.location.origin + '/';
+    //   return;
+    // }
 
     var json2FormData = function(args){
       let formData = new FormData();
@@ -63,9 +63,9 @@ function Ajax(obj) {
         case -1:
           tools.info('用户登录已过期','error');
           localStorage.state = null;
-          setTimeout(()=>{
-            window.location.href = document.location.origin + '/';
-          },1000);
+          // setTimeout(()=>{
+          //   window.location.href = document.location.origin + '/';
+          // },1000);
           break;
         case 0:
           sucFn(res);

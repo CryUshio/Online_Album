@@ -11,7 +11,7 @@
         <div class="input-wrapper">
           <span class="name">相册描述</span>
           <textarea v-model="adescribe" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"></textarea>
-          <span class="gray">{{ adescribelen }}/2000</span>
+          <span class="gray">{{ adescribelen }}/1000</span>
         </div>
         <div class="input-wrapper">
           <span class="name">标签</span>
@@ -21,7 +21,7 @@
             <input class="gender-input" v-model="recTag"/>
             <a class="gender-select" @click="showGender()"></a>
             <div class="gender-list" v-if="showgender">
-              <a class="gender" @click="showGender(index)" v-for="(t,index) in tag">{{ t.tname }}</a>
+              <a class="gender" @click="showGender(index)" v-for="(t,index) in state.tag">{{ t.tname }}</a>
             </div>
           </div>
           <!-- <div class="label-wrapper">
@@ -48,7 +48,9 @@
 export default {
   props: ['isNew'],
   data() {
+    const state = this.$store.state.albumList;
     return {
+      state,
       transIn: false,
       aname: '',
       anamelen: 0,
@@ -62,82 +64,61 @@ export default {
       showgender: false,
       recTag: '',
       recTagId: '',
-      tag: ''
     }
   },
   mounted() {
-    setTimeout(()=>{
+    setTimeout(() => {
       this.transIn = true
-      if(!this.isNew) {
+      if (!this.isNew) {
         let album = this.$store.state.photoList.album
         console.log(this.$store.state.photoList.album);
         this.aname = album.aname
         this.adescribe = album.adescribe
       }
-    },100)
+    }, 100)
     this.getTag()
   },
   watch: {
-    aname(val, old){
+    aname(val, old) {
       this.anamelen = tools.strlen(val)
-      if(tools.strlen(val)>30)
+      if (tools.strlen(val) > 30)
         this.aname = old
     },
-    adescribe(val, old){
+    adescribe(val, old) {
       this.adescribelen = tools.strlen(val)
-      if(tools.strlen(val)>2000)
+      if (tools.strlen(val) > 1000)
         this.adescribe = old
     }
   },
   methods: {
-    newAlbum(){
-      if(!this.aname || !this.adescribe || !this.recTag) return tools.info('请将所有信息填写完整', 'error')
+    newAlbum() {
+      if (!this.aname || !this.adescribe || !this.recTag) return tools.info('请将所有信息填写完整', 'error')
       console.log(this.recTag);
-      let vm = this
-      let obj = {
-        url: '/album/createAlbum',
-        args: {
-          aname: vm.aname,
-          adescribe: vm.adescribe,
-          tags: vm.recTagId
-        },
-        success: function(res) {
-          tools.info('创建成功', 'success')
-          vm.closeDialog()
-          vm.$emit('suc')
-        },
-        error: function(res) {
-          tools.info('创建失败', 'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+
+      this.$store.dispatch('createAlbum', {
+        aname: this.aname,
+        adescribe: this.adescribe,
+        tags: this.recTagId
+      }).then(() => {
+        tools.info('创建成功', 'success')
+        this.closeDialog()
+        this.$emit('suc')
+      }).catch(() => {
+        tools.info('创建失败', 'error')
+      })
     },
     getTag() {
-      let vm = this
-      let obj = {
-        url: '/tag/getAllTag',
-        opt: 'get',
-        args: {
-
-        },
-        success: function(res) {
-          vm.tag = res.data
-        },
-        error: function(res) {
-          tools.info('获取标签列表失败，请刷新后重试', 'error')
-        },
-        asy: true
-      }
-      Ajax(obj)
+      this.$store.dispatch('getPicTag').catch(() => {
+        tools.info('获取标签列表失败，请刷新后重试', 'error');
+      });
     },
     closeDialog() {
       this.$emit('closeDialog')
     },
     showGender(i) {
-      if(typeof i != 'undefined'){
-        this.recTag = this.tag[i].tname
-        this.recTagId = this.tag[i].tagId
+      if (typeof i != 'undefined') {
+        this.recTag = this.state.tag[i].tname
+        this.recTagId = this.state.tag[i].tagId
         this.showgender = false
       } else {
         this.showgender = !this.showgender
@@ -149,40 +130,40 @@ export default {
 
 <style scoped>
 ::-webkit-scrollbar {
-   width: 8px;
-   height: 8px
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track-piece {
-   background-color: transparent
+  background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-   border-radius: 9px;
-   background-color: rgba(195, 195, 195, 0.3)
+  border-radius: 9px;
+  background-color: rgba(195, 195, 195, 0.3);
 }
 ::-webkit-scrollbar-thumb:hover {
-   background-color: rgba(126, 126, 126, 0.6)
+  background-color: rgba(126, 126, 126, 0.6);
 }
 
 .new-album-wrapper {
   position: fixed;
-  top:45%;
-  left:50%;
+  top: 45%;
+  left: 50%;
   min-width: 380px;
   min-height: 260px;
   width: 360px;
   /* height: 320px; */
-  transform:translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
 
   background: #fff;
   border-radius: 3px;
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
   overflow: none;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
   opacity: 0;
   z-index: 6;
 }
 .new-album-wrapper-in {
-  top:50%;
+  top: 50%;
   opacity: 1;
 }
 
@@ -197,7 +178,7 @@ export default {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   background: rgba(0, 0, 0, 0.05);
   font-size: 14px;
-  color: #4C4C4C;
+  color: #4c4c4c;
   box-sizing: border-box;
 }
 .title i {
@@ -205,8 +186,8 @@ export default {
   right: 13px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'iconfont';
-  content: '\e625';
+  font-family: "iconfont";
+  content: "\e625";
   font-size: 14px;
   color: #a3a2a2;
   cursor: pointer;
@@ -220,7 +201,6 @@ export default {
   padding: 20px 40px;
   overflow: none;
   box-sizing: border-box;
-
 }
 .input-wrapper {
   display: grid;
@@ -231,7 +211,6 @@ export default {
   line-height: 30px;
   margin-bottom: 10px;
   font-size: 14px;
-
 }
 .input-wrapper .name {
   text-align: right;
@@ -273,7 +252,7 @@ export default {
   height: 28px;
   border: none;
   padding: 0;
-  background: transparent
+  background: transparent;
 }
 
 /* TODO */
@@ -301,8 +280,8 @@ export default {
   position: absolute;
   top: 0;
   right: 5px;
-  font-family: 'iconfont';
-  content: '\e74a'
+  font-family: "iconfont";
+  content: "\e74a";
 }
 .gender-list {
   position: absolute;
@@ -317,7 +296,7 @@ export default {
   box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
   overflow: auto;
-  z-index: 11
+  z-index: 11;
 }
 .gender {
   display: block;
@@ -328,10 +307,8 @@ export default {
   box-sizing: border-box;
 }
 .gender:hover {
-  background: rgba(0,0,0,.05)
+  background: rgba(0, 0, 0, 0.05);
 }
-
-
 
 /* footer */
 .footer {
@@ -362,10 +339,10 @@ export default {
   background: #3583d0;
 }
 .cancel {
-  background: rgb(255,255,255);
+  background: rgb(255, 255, 255);
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 .cancel:hover {
-  background: rgb(245,245,245);
+  background: rgb(245, 245, 245);
 }
 </style>
