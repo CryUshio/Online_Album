@@ -59,7 +59,7 @@ export default {
 
     newImg(i, url) {
       let img = new Image()
-      img.src = url ? 'http://localhost:6705' + url : 'static/img/default.jpg'
+      img.src = url ? 'http://localhost:4200' + url : 'static/img/default.jpg'
       // img.src = url || 'static/img/default.jpg'
       img.onerror = () => {
         this.albumList[i].acover = 'static/img/error.jpg'

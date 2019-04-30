@@ -2,33 +2,50 @@
   <div id="topbar">
     <div class="wrapper-topbar">
       <router-link :to="{ name: 'Index'}"><div class="logo"></div></router-link>
-      <div class="avatar-wrapper" v-if="userInfo.isLogin"><img class="user-avatar" :src="userInfo.avatar"></div>
+      <div class="avatar-wrapper" v-if="userInfo.uid"><img class="user-avatar" :src="userInfo.avatar || 'static/img/default_avatar.gif'"></div>
       <div class="wrapper-topbar-user">
-        <a @click="goHome" v-if="userInfo.isLogin">
+        <div v-if="userInfo.uid">
+          <a @click="goHome">
+            <router-link :to="{ name: 'Home'}" style="color: black">{{ userInfo.uname }}，欢迎你！</router-link>
+            <a @click="logout">退出</a>
+          </a>
+        </div>
+        <div v-else>
+          <a @click="login">登录</a>
+          <a @click="register">注册</a>
+        </div>
+        
+        <!-- <a @click="goHome" v-if="isLogin">
           <router-link :to="{ name: 'Home'}" style="color: black">{{ userInfo.uname }}，欢迎你！</router-link>
         </a>
-        <a @click="login" v-if="!userInfo.isLogin">登录</a>
-        <a @click="register" v-if="!userInfo.isLogin">注册</a>
-        <a @click="logout" v-if="userInfo.isLogin">退出</a>
+        <a @click="login" v-if="!isLogin">登录</a>
+        <a @click="register" v-if="!isLogin">注册</a>
+        <a @click="logout" v-if="isLogin">退出</a> -->
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Cookies from 'js-cookie';
 export default {
   data() {
     return {
-      userInfo: this.$store.state.userInfo,
+
     }
   },
-  mounted() {
-    this.$store.commit('getLocalStorage')
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    }
+  },
+  created() {
+    if (Cookies.get('x-token')) {
+      this.$store.dispatch('getUserInfo');
+    }
   },
   activated() {
-    // if(!this.userInfo.uid){
-    //   this.$router.push({name: 'Index'})
-    // }
+
   },
   methods: {
     goHome() {

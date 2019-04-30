@@ -3,6 +3,7 @@ const Database = require('./db');
 const { cleanCache, sleep } = require('./utils');
 
 const db = new Database();
+const tokenPool = new Map();
 
 module.exports = async (ctx, next) => {
   const reqPath = ctx.request.path;
@@ -14,6 +15,6 @@ module.exports = async (ctx, next) => {
   }
   const handler = require(handlerPath);
   await sleep(1000);
-  await handler(ctx, db);
+  await handler(ctx, { db, tokenPool });
   next();
 };

@@ -244,6 +244,7 @@ export default {
         this.register()
       }
     },
+
     login() {
       if (!this.onsubmit()) return
       if (!(validate.ckName(this.uname) || validate.ckEmail(this.uname))) {
@@ -254,7 +255,6 @@ export default {
       tools.loading();
       this.inLogin = true
       setTimeout(() => { this.inLogin = false }, 10000)
-      let vm = this
 
       this.$store.dispatch('userLogin', {
         uname: this.uname,
@@ -263,10 +263,12 @@ export default {
         this.closeDialog();
         tools.info('登录成功', 'success');
       }).catch(() => {
-        this.inLogin = false
+        this.inLogin = false;
         tools.info('用户名或密码错误', 'error')
         $('#uname').next().addClass('input-error-line')
         $('#upsd').next().addClass('input-error-line')
+      }).finally(() => {
+        tools.loading(false);
       });
     },
     register() {
@@ -280,8 +282,6 @@ export default {
       this.$store.dispatch('userRegister', {
         uname: this.uname,
         upsd: this.upsd,
-        //'ugender': this.ugender,
-        //'usign': this.usign,
         uemail: this.uemail
       }).then(() => {
         tools.info('注册成功！请登录', 'success');
@@ -289,6 +289,8 @@ export default {
       }).catch((res) => {
         this.inLogin = false;
         tools.info(res.msg, 'error');
+      }).finally(() => {
+        tools.loading(false);
       });
 
     }

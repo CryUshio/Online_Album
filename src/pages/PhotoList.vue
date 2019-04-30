@@ -96,7 +96,7 @@ export default {
 
     newImg(i, url) {
       let img = new Image()
-      img.src = 'http://localhost:6705' + url
+      img.src = 'http://localhost:4200' + url
       // img.src = url
       img.onerror = () => {
         this.photoList[i].purl = 'static/img/error.jpg'

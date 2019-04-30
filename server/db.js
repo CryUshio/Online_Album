@@ -43,6 +43,9 @@ class CreateDatabase {
     }, (reject) => {
       console.log(reject);
       return reject;
+    }).catch((err) => {
+      console.log(err);
+      return { code: 2, err };
     });
   }
 };

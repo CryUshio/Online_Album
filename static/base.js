@@ -1,6 +1,6 @@
 // var baseUrl = document.location.origin + '/user';
-// var baseUrl = 'http://192.168.31.10:6705/user';
-var baseUrl = 'http://localhost:6705';
+// var baseUrl = 'http://192.168.31.10:4200/user';
+var baseUrl = 'http://localhost:4200';
 
 
 function Ajax(obj) {

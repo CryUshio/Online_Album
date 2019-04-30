@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as service from './service';
+import Cookies from 'js-cookie';
 
 Vue.use(Vuex)
 
 const defaultUserInfo = {
-  isLogin: false,
   uid: '',
   uname: '',
   avatar: '',
@@ -71,6 +71,14 @@ const store = new Vuex.Store({
 
   },
   actions: {
+    getUserInfo: (ctx) => {
+      return service.getUserInfo().then((res) => {
+        ctx.commit('setUserInfo', res.data);
+      }).catch(() => {
+        Cookies.remove('x-token');
+        ctx.commit('setUserInfo', defaultUserInfo);
+      });
+    },
     userLogin: (ctx, payload) => {
       return service.login(payload).then((res) => {
         ctx.commit('setUserInfo', res.data);

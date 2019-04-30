@@ -4,7 +4,7 @@
     <div class="head">
       <div class="head-bg">
         <div class="user-bar-wrapper">
-          <div class="avatar-wrapper"><img class="avatar" :src="userInfo.avatar"></div>
+          <div class="avatar-wrapper"><img class="avatar" :src="userInfo.avatar || 'static/img/default_avatar.gif'"></div>
           <div class="user-info">
             <div class="user-info-line"><span class="user-name">{{ userInfo.uname }}</span></div>
             <div class="user-info-line"><span class="user-sign">{{ userInfo.usignature || '暂无签名'}}</span></div>

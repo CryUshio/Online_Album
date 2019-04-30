@@ -70,7 +70,7 @@ export default {
     },
     newImg(pid, url) {
       let img = new Image()
-      img.src = url ? 'http://localhost:6705' + url : 'static/img/default.jpg'
+      img.src = url ? 'http://localhost:4200' + url : 'static/img/default.jpg'
       // img.src = url
       img.onerror = () => {
         $('#' + pid).attr('src','static/img/error.jpg')
@@ -80,8 +80,8 @@ export default {
       }
     },
     avatar(url) {
-      if(!url) return 'static/img/default_avartar.gif'
-      else return ('http://localhost:6705' + url)
+      if(!url) return 'static/img/default_avatar.gif'
+      else return ('http://localhost:4200' + url)
     },
     showInfo(bool){
       if(bool){
