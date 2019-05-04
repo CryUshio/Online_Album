@@ -6,11 +6,11 @@
         <button class="back-album" @click="backList()">返回列表</button>
       </div>
       <div class="album-detail-wrapper">
-        <div class="album-wrapper" :style="`background: url(${album.acover})`"></div>
+        <div class="album-wrapper" :style="`background: url(${album.album_cover})`"></div>
         <div class="album-detail">
           <div class="detail-title-wrapper">
-            <span class="detail-title" :title="album.aname">{{ album.aname }}</span>
-            <span class="detail-num">{{ photoList.length }}张/{{ album.acreateTime }}</span>
+            <span class="detail-title" :title="album.album_name">{{ album.album_name }}</span>
+            <span class="detail-num">{{ photoList.length }}张/{{ format(album.create_time) }}</span>
           </div>
           <div class="op-wrapper">
             <button class="btn upload" @click="showDialog('upload')">上传照片</button>
@@ -28,7 +28,7 @@
         <div class="photo-item-wrapper" v-for="(p,index) in photoList" :key="index">
           <div :class="['photo-item', {'photo-item-select': selectList[p.pid] }]" @click="selected(p.pid)">
             <div class="cover-wrapper">
-              <div class="cover" :style="`background: url(${p.purl})`"></div>
+              <div class="cover" :style="`background: url(${p.pic_url})`"></div>
             </div>
             <!-- <div class="title-wrapper" :title="p.pname">{{p.pname}}</div> -->
           </div>
@@ -45,9 +45,11 @@
 </template>
 
 <script>
+import format from '@/assets/js/dateFormat.js';
 export default {
   data() {
     return {
+      format,
       userInfo: this.$store.state.userInfo,
       multiMa: false,
       selectList: {},
@@ -71,26 +73,25 @@ export default {
   methods: {
     getAlbumInfo() {
       this.albumList = []
-      this.album = this.$route.params.album || this.$store.state.photoList.album
+      this.album = { album_id: this.$route.query.album, album_name: this.$route.query.album_name };
       this.albumList.push(this.album)
       this.$store.commit('setPhotoList', { album: this.album })
-      this.$store.commit('setLocalStorage')
     },
     getPhotoList() {
       tools.loading()
 
       this.$store.dispatch('getPicList', {
-        uid: this.userInfo.uid,
-        albumid: this.album.aid,
-        label: '-1'
+        albumid: this.album.album_id,
       }).then(({ data }) => {
         for (let i = 0; i < data.length; i++) {
-          this.newImg(i, data[i].purl);
-          data[i].purl = 'static/img/loading.gif';
+          this.newImg(i, data[i].pic_url);
+          data[i].pic_url = 'static/img/loading.gif';
         }
         this.photoList = data;
       }).catch(() => {
         tools.info('获取图片失败，请刷新后重试', 'error');
+      }).finally(() => {
+        tools.loading(false);
       })
     },
 
@@ -99,10 +100,10 @@ export default {
       img.src = 'http://localhost:4200' + url
       // img.src = url
       img.onerror = () => {
-        this.photoList[i].purl = 'static/img/error.jpg'
+        this.photoList[i].pic_url = 'static/img/error.jpg'
       }
       img.onload = () => {
-        this.photoList[i].purl = img.src
+        this.photoList[i].pic_url = img.src
       }
     },
     multiManage(bool) {

@@ -24,7 +24,6 @@
             :key="index"
             :lid="n.id"
             :ref="`waterfall_${index}`"
-            @scrollLoad="scrollLoad"
             v-for="(n,index) in classification"
             v-if="n.id == recClassId"
           ></waterfall>
@@ -48,6 +47,7 @@
 </template>
 
 <script>
+import { setTimeout } from 'timers';
 export default {
   data() {
     return {
@@ -61,19 +61,19 @@ export default {
         name: '全部',
         selected: true
       }, {
-        id: 2,
+        id: 1001,
         name: '自然',
         selected: false
       }, {
-        id: 4,
+        id: 1002,
         name: '人物',
         selected: false
       }, {
-        id: 8,
+        id: 1003,
         name: '动漫',
         selected: false
       }, {
-        id: 9,
+        id: 1004,
         name: '美食',
         selected: false
       }],
@@ -93,8 +93,8 @@ export default {
   },
   activated() {
     this.scrollLoad()
+    console.log(1);
     this.$store.commit('setUserCenter', { recNavId: 0 })
-    this.$store.commit('setLocalStorage')
   },
   // beforeDestory() {
   //   window.removeEventListener('scroll', ()=>{
@@ -113,16 +113,16 @@ export default {
         case -1:
           this.$refs.waterfall_0[0].addPicBox(this.imgsArr)
           break
-        case 2:
+        case 1001:
           this.$refs.waterfall_1[0].addPicBox(this.imgsArr)
           break
-        case 4:
+        case 1002:
           this.$refs.waterfall_2[0].addPicBox(this.imgsArr)
           break
-        case 8:
+        case 1003:
           this.$refs.waterfall_3[0].addPicBox(this.imgsArr)
           break
-        case 9:
+        case 1004:
           this.$refs.waterfall_4[0].addPicBox(this.imgsArr)
           break
       }
@@ -140,26 +140,31 @@ export default {
       this.recClassId = arr[index].id
       setTimeout(() => {
         this.scrollLoad()
+        console.log(2);
+
       }, 100)
     },
     scorllLoading() {
-      // console.log($(window).scrollTop());
-      if (($(window).scrollTop() + $(window).height() * 1.5) >= $(document).height()) {
-        if (this.scrollTrigger) {
+      const scrollTop = $(window).scrollTop();
+
+      const height = $(window).height();
+      if ((scrollTop + height * 1.5) >= $(document).height()) {
+        if (this.scrollTrigger && this.scrollTopOld < scrollTop) {
           this.scrollLoad()
-          this.scrollTrigger = false
+          console.log(3);
         }
       }
 
-      if ($(window).scrollTop() - this.scrollTopOld > 0) {
+      if (scrollTop - this.scrollTopOld > 0) {
         this.topbarHide = true
       } else {
         this.topbarHide = false
       }
-      this.scrollTopOld = $(window).scrollTop()
+
+      this.scrollTopOld = scrollTop;
 
 
-      if ($(window).scrollTop() > $(window).height() * 2) {
+      if (scrollTop > height * 2) {
         this.showBackTop = true
       } else {
         this.showBackTop = false
@@ -169,18 +174,23 @@ export default {
       this.imgsArr = []
       this.isloading = true
 
+      this.scrollTrigger = false
       this.$store.dispatch('getPicList', {
-        'uid': -1, // -1为首页
-        'albumid': -1,// -1为首页
-        //'label': this.classification[recClassId].name
         'label': this.recClassId,
         'len': this.len
-      }).then((res) => {
-        this.scrollTrigger = true
-        if (res.data.length == 0) return this.isloading = false
-        this.imgsArr = res.data;
-        this.addpic()
-      }).catch(() => { })
+      })
+        .then((res) => {
+          setTimeout(() => {
+            this.scrollTrigger = true
+          }, 600);
+          if (res.data.length == 0) return;
+          this.imgsArr = res.data;
+          this.addpic()
+        })
+        .catch(() => { })
+        .finally(() => {
+          this.isloading = false
+        })
     },
     backTop(time) {
       $('html').animate({ scrollTop: 0 }, 500);

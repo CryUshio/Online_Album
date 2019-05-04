@@ -1,12 +1,19 @@
 const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
+const bodyParser = require('koa-body');
+const serve = require('koa-static');
 const mockMiddleware = require('./mock.middleware');
 const chalk = require('chalk');
 
 const app = new Koa();
 const port = process.env.port || 4200;
 
-app.use(bodyParser());
+app.use(serve(__dirname));
+app.use(bodyParser({
+  multipart: true,
+  formidable: {
+    maxFileSize: 200 * 1024 * 1024 // 默认2M
+  }
+}));
 app.use(async (ctx, next) => {
   try {
     await next();

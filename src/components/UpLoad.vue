@@ -9,17 +9,17 @@
         </div>
         <div class="album-list-wrapper">
           <div class="album-list">
-            <div v-for="(i,index) in albumList" :class="['item', {'item-selected': i.aid == selected.aid }]"
-                 @click="select(index)" :key="index" :title="i.aname"
-                 >{{ i.aname }}
+            <div v-for="(i,index) in albumList" :class="['item', {'item-selected': i.album_id == selected.album_id }]"
+                 @click="select(index)" :key="index" :title="i.album_name"
+                 >{{ i.album_name }}
                  <div class="num">{{ i.picNum }}</div>
             </div>
           </div>
         </div>
         <div class="upload-area-title">
           <div v-if="albumList.length != 0">
-            <span>上传{{ pic.length }}张图片到</span><span class="album-name" :title="selected.adescribe">{{ selected.aname }}</span>
-            <span class="gray">创建日期：{{ selected.acreateTime }}</span>
+            <span>上传{{ pic.length }}张图片到</span><span class="album-name" :title="selected.album_describe">{{ selected.album_name }}</span>
+            <span class="gray">创建日期：{{ format(selected.create_time) }}</span>
           </div>
           <span v-else>还没有相册，先新建一个吧</span>
           <div class="upload-btn-wrapper">
@@ -51,10 +51,12 @@
 </template>
 
 <script>
+import format from '@/assets/js/dateFormat.js';
 export default {
   props: ['albumList', 'isInAlbumList'],
   data() {
     return {
+      format,
       transIn: false,
       selected: '',  //选中的相册
       pic: [],  //待上传图片
@@ -139,25 +141,26 @@ export default {
 
     },
     uploadPic(img) {
-      if (!this.selected.aid) {
+      if (!this.selected.album_id) {
         tools.info('你还没有选择相册', 'default')
         return;
       }
       this.isInUpload = true
       let count = this.pic.length
       let i = 0
-      console.log(this.pic);
-
-      push()
-
-      function push() {
-        const formData = new FormData();
-        formData.append('img', this.pic[i]);
-        this.$store.dispatch('upload', {
+      console.log(this.pic, {
           pname: this.pic[i].pname,
           img: this.pic[i],
-          aid: this.selected.aid
-        }).then(() => {
+          aid: this.selected.album_id
+        });
+
+      const push = () => {
+        const formData = new FormData();
+        formData.append('img', this.pic[i]);
+        formData.append('img_name', this.pic[i].pname);
+        formData.append('album_id', this.selected.album_id);
+        this.$store.dispatch('upload', formData)
+        .then(() => {
           if (++i < count) {
             push()
           } else {
@@ -165,16 +168,19 @@ export default {
             tools.info('上传完成', 'success')
             this.closeDialog()
           }
-        }).catch(() => {
+        }).catch((res) => {
           tools.info(res.msg, 'error')
-          if (++i < count) push()
+          if (++i < count) {
+            push()
+          }
           else {
             this.closeDialog()
             tools.info('上传完成', 'success')
             this.$emit('uploadSuc')
           }
         })
-      }
+      };
+      push();
     },
     closeDialog() {
       this.$emit('closeDialog')

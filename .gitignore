@@ -2,8 +2,6 @@
 
 node_modules/
 
-backstage/
-
 test/
 
 /dist/

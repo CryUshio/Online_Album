@@ -9,17 +9,16 @@
         <div class="album-item-wrapper" v-for="(a,index) in albumList" :key="index">
           <div class="album-item" @click="toPicList(index)">
             <div class="cover-wrapper">
-              <div class="cover" :style="`background: url(${a.acover})`"></div>
+              <div class="cover" :style="`background: url(${a.album_cover})`"></div>
             </div>
-            <div class="title-wrapper" :title="a.aname">{{a.aname}}</div>
+            <div class="title-wrapper" :title="a.album_name">{{a.album_name}}</div>
           </div>
         </div>
       </div>
     </div>
 
     <shade @closeShade="closeDialog" v-if="uploadDialog || newAlbumDialog"></shade>
-    <upload @closeDialog="closeDialog" @newAlbum="showDialog('newAlbum')" @uploadSuc=""
-            :albumList="albumList" :isInAlbumList="true" v-if="uploadDialog"></upload>
+    <upload @closeDialog="closeDialog" @newAlbum="showDialog('newAlbum')" @uploadSuc="" :albumList="albumList" :isInAlbumList="true" v-if="uploadDialog"></upload>
     <newalbum @closeDialog="closeDialog" @suc="getAlbumList()" :isNew="true"
               v-if="newAlbumDialog"></newalbum>
   </div>
@@ -47,13 +46,15 @@ export default {
       tools.loading()
       this.$store.dispatch('getAlbumList').then(({ data }) => {
         for (let i = 0; i < data.length; i++) {
-          this.newImg(i, data[i].acover)
-          data[i].acover = 'static/img/loading.gif'
+          this.newImg(i, data[i].album_cover)
+          data[i].album_cover = 'static/img/loading.gif'
         }
         this.albumList = data
         console.log(data);
       }).catch(() => {
         tools.info('获取相册失败，请刷新后重试', 'error');
+      }).finally(() => {
+        tools.loading(false);
       });
     },
 
@@ -62,14 +63,14 @@ export default {
       img.src = url ? 'http://localhost:4200' + url : 'static/img/default.jpg'
       // img.src = url || 'static/img/default.jpg'
       img.onerror = () => {
-        this.albumList[i].acover = 'static/img/error.jpg'
+        this.albumList[i].album_cover = 'static/img/error.jpg'
       }
       img.onload = () => {
-        this.albumList[i].acover = img.src
+        this.albumList[i].album_cover = img.src
       }
     },
     toPicList(i) {
-      this.$router.push({ name: 'Photo', params: { album: this.albumList[i] } })
+      this.$router.push({ name: 'Photo', query: { album: this.albumList[i].album_id, album_name: this.albumList[i].album_name } })
     },
     showDialog(type) {
       tools.preventScorll()

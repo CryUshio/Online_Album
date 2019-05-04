@@ -28,7 +28,7 @@ class CreateDatabase {
     this.connection.release();
   }
 
-  sql (sqlString) {
+  sql(sqlString) {
     sqlString = sqlString.replace(/;$/, '') + ';';
     console.log(sqlString);
     return new Promise((resolve, reject) => {
@@ -50,9 +50,9 @@ class CreateDatabase {
   }
 };
 
-const Database = function() {
+const Database = function () {
   let instance = null;
-  return (function() {
+  return (function () {
     if (!instance) {
       instance = new CreateDatabase();
     }

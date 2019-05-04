@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import format from '@/assets/js/dateFormat.js';
 export default {
   props: ['lid'],
   data() {
@@ -51,32 +52,32 @@ export default {
           let $div = $('<div class="picture-box"></div>');
           let url = this.avatar(imgsArr[i].avatar)
           let content = `
-          <img id="`+ imgsArr[i].pid +`" src="static/img/loading.gif" onerror="this.src='static/img/error.jpg'">
+          <img id="`+ this.lid + imgsArr[i].pic_id +`" src="static/img/loading.gif" onerror="this.src='static/img/error.jpg'">
           <div class="pic-info-2-wrapper-2" data-pic-info-2="`+ imgsArr[i].uid +`">
             <div class="pic-info-2">
               <div class="avatar-wrapper-2"><img class="user-avatar-2" src="`+ url +`"/></div>
               <div class="user-info-2">
                 <div class="user-info-2-line"><span class="user-name-2">`+ imgsArr[i].uname +`</span></div>
-                <div class="user-info-2-line"><span class="user-sign-2">上传时间：`+ imgsArr[i].updateTime +`</span></div>
+                <div class="user-info-2-line"><span class="user-sign-2">上传时间：`+ format(imgsArr[i].upload_time) +`</span></div>
               </div>
             </div>
           </div>`;
           $div.append(content);
           box.push($div);
-          this.newImg(imgsArr[i].pid, imgsArr[i].purl)
+          this.newImg(imgsArr[i].pic_id, imgsArr[i].pic_url)
         }
         $(".classification-" + this.lid).gridalicious('append', box);
       },100)
     },
-    newImg(pid, url) {
+    newImg(pic_id, url) {
       let img = new Image()
       img.src = url ? 'http://localhost:4200' + url : 'static/img/default.jpg'
       // img.src = url
       img.onerror = () => {
-        $('#' + pid).attr('src','static/img/error.jpg')
+        $('#' + this.lid + pic_id).attr('src','static/img/error.jpg')
       }
       img.onload = () => {
-        $('#' + pid).attr('src',img.src)
+        $('#' + this.lid + pic_id).attr('src',img.src)
       }
     },
     avatar(url) {

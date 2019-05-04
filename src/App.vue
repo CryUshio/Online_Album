@@ -44,7 +44,9 @@ export default {
   -moz-osx-font-smoothing: grayscale;
 }
 html,body {
+  position: relative;
   min-width: 540px;
+  width: 100vw;
   margin: 0;
   padding: 0;
   background: #f5f4f5;

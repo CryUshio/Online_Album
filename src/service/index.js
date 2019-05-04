@@ -24,10 +24,10 @@ export const getPicTag = (params) => axios.get('/api/pic/tag', { params });
 
 export const getAlbumList = (params) => axios.get('/api/pic/albumList', { params });
 
-export const createAlbum = (data) => axios.post('/api/pic/create', { data });
+export const createAlbum = (data) => axios.post('/api/pic/createAlbum', { data });
 
-export const upload = (data) => axios.post('/api/pic/upload', { data }, {
+export const upload = (formData) => axios.create({
   headers: {
     'Content-Type': 'multipart/form-data'
   }
-});
+}).post('/api/pic/upload', formData);

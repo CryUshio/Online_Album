@@ -21,7 +21,7 @@
             <input class="gender-input" v-model="recTag"/>
             <a class="gender-select" @click="showGender()"></a>
             <div class="gender-list" v-if="showgender">
-              <a class="gender" @click="showGender(index)" v-for="(t,index) in state.tag">{{ t.tname }}</a>
+              <a class="gender" @click="showGender(index)" v-for="(t,index) in state.tagList">{{ t.tag_name }}</a>
             </div>
           </div>
           <!-- <div class="label-wrapper">
@@ -95,6 +95,7 @@ export default {
       if (!this.aname || !this.adescribe || !this.recTag) return tools.info('请将所有信息填写完整', 'error')
       console.log(this.recTag);
 
+      tools.loading();
       this.$store.dispatch('createAlbum', {
         aname: this.aname,
         adescribe: this.adescribe,
@@ -105,7 +106,9 @@ export default {
         this.$emit('suc')
       }).catch(() => {
         tools.info('创建失败', 'error')
-      })
+      }).finally(() => {
+        tools.loading(false);
+      });
     },
     getTag() {
       this.$store.dispatch('getPicTag').catch(() => {
@@ -117,8 +120,8 @@ export default {
     },
     showGender(i) {
       if (typeof i != 'undefined') {
-        this.recTag = this.state.tag[i].tname
-        this.recTagId = this.state.tag[i].tagId
+        this.recTag = this.state.tagList[i].tag_name
+        this.recTagId = this.state.tagList[i].tag_id
         this.showgender = false
       } else {
         this.showgender = !this.showgender
