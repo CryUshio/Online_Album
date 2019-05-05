@@ -14,6 +14,7 @@ module.exports = async (ctx, { db }) => {
     query = await db.sql(`SELECT * FROM pic WHERE album_id=${data.albumid}`);
   }
 
+  console.log(query);
   if (query.code !== 0) {
     ctx.body = { code: 2, msg: '系统繁忙，请稍后重试' };
     return;

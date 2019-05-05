@@ -27,21 +27,21 @@ const store = new Vuex.Store({
     },
     photoList: {
       album: ''
-    }
+    },
+    albumInfo: '',
   },
   mutations: {
     setUserInfo(state, payload) {
       state.userInfo = { ...state.userInfo, ...payload };
     },
-    setUserCenter(state, obj) {
-      for (let key in obj) {
-        state.userCenter[key] = obj[key]
-      }
+    setUserCenter(state, payload) {
+      state.userCenter = { ...state.userCenter, ...payload };
     },
-    setPhotoList(state, obj) {
-      for (let key in obj) {
-        state.photoList[key] = obj[key]
-      }
+    setPhotoList(state, payload) {
+      state.photoList = payload;
+    },
+    setAlbumInfo(state, payload) {
+      state.albumInfo = payload;
     },
     setTag(state, payload) {
       state.albumList.tagList = payload;
@@ -142,6 +142,14 @@ const store = new Vuex.Store({
     getAlbumList: (ctx, payload) => {
       return service.getAlbumList(payload).then((res) => {
         return Promise.resolve(res);
+      }).catch((res) => {
+        return Promise.reject(res);
+      });
+    },
+    getAlbumInfo: (ctx, payload) => {
+      return service.getAlbumInfo(payload).then((res) => {
+        ctx.commit('setAlbumInfo', res.data[0]);
+        return Promise.resolve(res.data[0]);
       }).catch((res) => {
         return Promise.reject(res);
       });

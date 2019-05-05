@@ -5,12 +5,12 @@
       <div class="content">
         <div class="input-wrapper">
           <span class="name">相册名称</span>
-          <input type="text" v-model="aname" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"/>
+          <input type="text" v-model="aname"/>
           <span class="gray">{{ anamelen }}/30</span>
         </div>
         <div class="input-wrapper">
           <span class="name">相册描述</span>
-          <textarea v-model="adescribe" onkeyup="value=value.replace(/[`~!#$^&*()=|{}':;',\\\/\[\].<>?~#￥…]/g, '')"></textarea>
+          <textarea v-model="adescribe"></textarea>
           <span class="gray">{{ adescribelen }}/1000</span>
         </div>
         <div class="input-wrapper">

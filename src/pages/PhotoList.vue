@@ -26,7 +26,7 @@
       </div>
       <div :class="['content-wrapper', {'no-photo': photoList.length == 0}]">
         <div class="photo-item-wrapper" v-for="(p,index) in photoList" :key="index">
-          <div :class="['photo-item', {'photo-item-select': selectList[p.pid] }]" @click="selected(p.pid)">
+          <div :class="['photo-item', {'photo-item-select': selectList.includes(p.pic_id) }]" @click="selected(p.pic_id)">
             <div class="cover-wrapper">
               <div class="cover" :style="`background: url(${p.pic_url})`"></div>
             </div>
@@ -52,23 +52,35 @@ export default {
       format,
       userInfo: this.$store.state.userInfo,
       multiMa: false,
-      selectList: {},
+      selectList: [],
 
-      album: '',
       albumList: [],
       photoList: [],
       uploadDialog: false,
       newAlbumDialog: false
     }
   },
+  created() {
+    if (!this.$store.state.albumInfo) {
+      this.$store.dispatch('getAlbumInfo', { album_id: this.$route.query.album })
+      .then((data) => {
+        this.albumList.push(data);
+        this.getPhotoList();
+      });
+    } else {
+      this.albumList.push(this.$store.state.albumInfo);
+      this.getPhotoList();
+    }
+  },
   activated() {
     this.multiMa = false
-    this.selectList = {}
-    this.getAlbumInfo()
-    this.getPhotoList()
+    this.selectList = []
   },
-  beforeDestory() {
-
+  computed: {
+    album() {
+      const albumInfo = this.$store.state.albumInfo;
+      return albumInfo;
+    }
   },
   methods: {
     getAlbumInfo() {
@@ -107,17 +119,23 @@ export default {
       }
     },
     multiManage(bool) {
-      if (!this.multiMa) tools.info('点击图片进行管理', 'default')
-      if (this.multiMa && bool) this.multiMa = false
-      else this.multiMa = bool
-
-    },
-    selected(pid) {
-      if (!this.multiMa) return
-      if (typeof this.selectList[pid] == 'undefined') {
-        this.$set(this.selectList, pid, true)
+      if (!this.multiMa) {
+        tools.info('点击图片进行管理', 'default')
+      }
+      if (this.multiMa && bool) {
+        this.multiMa = false;
       } else {
-        this.$delete(this.selectList, pid)
+        this.multiMa = bool
+        this.selectList = [];
+      }
+    },
+    selected(pic_id) {
+      if (!this.multiMa) return
+      if (!this.selectList.includes(pic_id)) {
+        this.selectList.push(pic_id);
+      } else {
+        const index = this.selectList.indexOf(pic_id);
+        this.selectList.splice(index, 1);
       }
     },
     deletePic() {

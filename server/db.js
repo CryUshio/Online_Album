@@ -34,15 +34,10 @@ class CreateDatabase {
     return new Promise((resolve, reject) => {
       this.connection.query(sqlString, (err, res) => {
         if (err) {
-          reject({ code: 1, err });
+          resolve({ code: 1, err });
         }
         resolve({ code: 0, res });
       });
-    }).then((res) => {
-      return res;
-    }, (reject) => {
-      console.log(reject);
-      return reject;
     }).catch((err) => {
       console.log(err);
       return { code: 2, err };

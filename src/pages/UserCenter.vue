@@ -82,13 +82,7 @@ export default {
       arr[index].selected = true
 
       this.$store.commit('setUserCenter', { recNavId: arr[index].id })
-      this.$store.commit('setLocalStorage')
     },
-
-
-
-
-
     login() {
 
     },

@@ -73,6 +73,7 @@ export default {
       this.transIn = true
     }, 100)
     this.selected = this.albumList[0] || {}
+    console.log(this.albumList);
   },
   computed: {
 

@@ -24,6 +24,8 @@ export const getPicTag = (params) => axios.get('/api/pic/tag', { params });
 
 export const getAlbumList = (params) => axios.get('/api/pic/albumList', { params });
 
+export const getAlbumInfo = (params) => axios.get('/api/pic/albumInfo', { params });
+
 export const createAlbum = (data) => axios.post('/api/pic/createAlbum', { data });
 
 export const upload = (formData) => axios.create({
