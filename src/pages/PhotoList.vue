@@ -78,8 +78,7 @@ export default {
   },
   computed: {
     album() {
-      const albumInfo = this.$store.state.albumInfo;
-      return albumInfo;
+      return this.$store.state.albumInfo;
     }
   },
   methods: {

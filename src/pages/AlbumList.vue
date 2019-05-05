@@ -70,7 +70,7 @@ export default {
       }
     },
     toPicList(i) {
-      this.$store.commit('setPhotoList', { album: this.albumList[i] });
+      this.$store.commit('setAlbumInfo', this.albumList[i]);
       this.$router.push({ name: 'Photo', query: { album: this.albumList[i].album_id } });
     },
     showDialog(type) {
