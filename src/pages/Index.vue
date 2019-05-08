@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { setTimeout } from 'timers';
+import RE_REPORT from 'report';
 export default {
   data() {
     return {
@@ -89,18 +89,28 @@ export default {
     }
   },
   mounted() {
+    RE_REPORT.init({
+      appId: 10013,
+      delay: 2000,
+      reportUrl: 'http://127.0.0.1:3600/interface/report'
+    });
+    RE_REPORT.report({
+      actionId: 'home_pv',
+    });
+    RE_REPORT.report({
+      actionId: 'index_pv',
+    });
     this.initPicBox()
   },
   activated() {
     this.scrollLoad()
-    console.log(1);
     this.$store.commit('setUserCenter', { recNavId: 0 })
   },
-  // beforeDestory() {
-  //   window.removeEventListener('scroll', ()=>{
-  //     this.scorllLoading()
-  //   });
-  // },
+  beforeDestory() {
+    window.removeEventListener('scroll', ()=>{
+      this.scorllLoading()
+    });
+  },
   methods: {
     initPicBox() {
       window.addEventListener('scroll', () => {
@@ -140,8 +150,6 @@ export default {
       this.recClassId = arr[index].id
       setTimeout(() => {
         this.scrollLoad()
-        console.log(2);
-
       }, 100)
     },
     scorllLoading() {
@@ -151,7 +159,6 @@ export default {
       if ((scrollTop + height * 1.5) >= $(document).height()) {
         if (this.scrollTrigger && this.scrollTopOld < scrollTop) {
           this.scrollLoad()
-          console.log(3);
         }
       }
 
