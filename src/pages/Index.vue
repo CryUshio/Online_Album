@@ -92,14 +92,38 @@ export default {
     RE_REPORT.init({
       appId: 10013,
       delay: 2000,
+      repeat_timeout: 0,
       reportUrl: 'http://127.0.0.1:3600/interface/report'
     });
     RE_REPORT.report({
-      actionId: 'home_pv',
+      actionId: 'uv',
     });
-    RE_REPORT.report({
-      actionId: 'index_pv',
-    });
+    for(let i = 0; i < 5; i++) {
+      RE_REPORT.report({
+        actionId: 'index_home_click',
+      });
+    }
+    for(let i = 0; i < 12; i++) {
+      RE_REPORT.report({
+        actionId: 'pic_pv',
+      });
+    }
+    for(let i = 0; i < 3; i++) {
+      RE_REPORT.report({
+        actionId: 'home_pv',
+      });
+    }
+    for(let i = 0; i < 7; i++) {
+      RE_REPORT.report({
+        actionId: 'index_pv',
+      });
+    }
+    for(let i = 0; i < 3; i++) {
+      RE_REPORT.report({
+        actionId: 'album_pv',
+      });
+    }
+
     this.initPicBox()
   },
   activated() {

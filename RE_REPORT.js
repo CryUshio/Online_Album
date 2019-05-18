@@ -45,9 +45,8 @@ var RE_REPORT = (function (global) {
 
     extend: function (src, source, isDeep = false) {
       var obj = isDeep ? {} : src;
-      console.log(src, source);
       for (var key in src) {
-        obj[key] = source[key] || src[key];
+        obj[key] = source[key] === undefined ? src[key] : source[key];
       }
       return obj;
     },
@@ -55,6 +54,9 @@ var RE_REPORT = (function (global) {
     isRepeat: function (report) {
       if (!Tool.isOBJ(report)) {
         return true;
+      }
+      if (!_config.repeat_timeout) {
+        return false;
       }
       var actionId = report.actionId;
       var oldTimes = _log_map[actionId] || 0;
@@ -84,7 +86,7 @@ var RE_REPORT = (function (global) {
       var isWM = userAgent.indexOf('windows mobile') > -1;
 
       if (!(isIpad || isIphone || isMidp || isUc7 || isUc || isAndroid || isCE || isWM || isLinux)) {
-        deviceType = "PC";
+        deviceType = 'PC';
       } else if (isAndroid || isLinux) {
         deviceType = 'Android';
       } else if (isIphone || isIpad) {
